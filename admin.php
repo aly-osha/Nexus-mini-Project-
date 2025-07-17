@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <?php
+    $servername = "localhost";
+    $username = "root";
+    $password = "amen";
+    $dbname = "mini";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    echo "Connected successfully<br><br>";
+
+    // Handle the form submission BEFORE displaying data
+   
+
+    // Fetch data and display the form
+    $sql = "SELECT * FROM teacher_user";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        echo"<form method='post' action=''>";
+        $i=1;
+        while ($row = $result->fetch_assoc()) {
+           
+$sid =$row['tid'];
+            echo "
+                Sid: {$row['tid']} &nbsp;&nbsp;
+                Name: {$row['user_name']} &nbsp;&nbsp;
+                Verification: {$row['verified']}<br>
+
+                <input type='hidden' name='sid' value='{$row['tid']}'>
+                <input type='radio' name='subscribe$sid' value='yes' > Yes
+                <input type='radio' name='subscribe$sid' value='no' > No
+                <hr>";
+               if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
+        
+        $x="subscribe".$sid;
+        $n=$_POST[$x];
+       
+//updating the changes to the table
+        $qry1 = "UPDATE teacher_user SET verified='$n' WHERE tid=$sid";
+        if ($conn->query($qry1) === TRUE) {
+            echo "Record updated for SID $sid to '$n'<br><br>";
+        } else {
+            echo " Error updating record: " . $conn->error;
+        }
+    }
+    $i++;
+        }
+       echo" <input type='submit' name='submit' value='Submit'>
+              </form><br>";
+        
+    } else {
+        echo "No data found.";
+    }
+
+    $conn->close();
+    ?>
+
+</body>
+
+</html>

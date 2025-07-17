@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        BUild the nexus
+    </title>
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+  <link href="login.css" rel="stylesheet" >
+</head>
+
+<body>
+    <div class="container" id="container">
+    <button id="loginBtn">Login</button>
+    <div class="top"></div>
+    <div class="bottom"></div>
+    <div class="center" id="loginBox">
+      <form action="user_validation.php" method="post" name="f1">
+        user name:<input type="text" name="uname"><br>
+        password:<input type="password" name="pword"><br>
+        <input type="submit" name="s">
+    </form>
+    <a href="new_user.html">new around here ?create a Nexus</a>
+    </div>
+  </div>
+  
+  
+  <script>
+    const loginBtn = document.getElementById("loginBtn");
+    const container = document.getElementById("container");
+    const loginBox = document.getElementById("loginBox");
+
+    // Show login box on button click
+    loginBtn.addEventListener("click", function () {
+      container.classList.add("show");
+    });
+
+    // Hide login box when mouse leaves the box
+    loginBox.addEventListener("mouseleave", function () {
+      container.classList.remove("show");
+    });
+  </script>
+</body>
+
+</html>
+  
