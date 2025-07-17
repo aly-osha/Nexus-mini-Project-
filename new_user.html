@@ -3,22 +3,79 @@
 
 <head>
     <title>
-        new student
+        signup
     </title>
+    <link rel="stylesheet" href="new_user.css">
 </head>
 
 <body>
-    <form name="f1" method="post" action="new_user.php" >
-        name:<input type="text" name="name"><br>
-        role:teacher<input type="radio" name="role" value="teacher">
-        student<input type="radio" name="role" value="student"><br>emial:<input type="text" name="email">
-        <br>dob:<input type="date" name="dob">
-        <br>address: <textarea name="address"></textarea><br>
-        <br>username:<input type="text" name="uname">
-        <br>password<input type="password" name="pword">
-        <br>re-enter password<input type="password" name="repword"><br>
-        <input type="submit">
-    </form>
+    <div class="top"></div>
+<div class="bottom"></div>
+    <div class="card">
+        <div class="containerrow">
+            <div class="containercolumn">
+                <img src="images/signup-image.jpg.png" height="100" width="250">
+                <form name="f1" method="post" action="new_user.php">
+                    <table >
+                        <tr align="right">
+                            <td>Name:</td>
+                            <td><input type="text" name="name"></td>
+                        </tr>
+                               <tr align="right">
+                            <td>Role:</td>
+                            <td align="left">Teacher<input type="radio" name="role" value="teacher">
+                                Student<input type="radio" name="role" value="student"></td>
+                        </tr>
+                               <tr align="right">
+                            <td>Emial:</td>
+                            <td><input type="text" name="email"></td>
+                        </tr>
+                               <tr align="right">
+                            <td>DOB:</td>
+                            <td align="left"><input type="date" name="dob">
+                            </td>
+                        </tr>
+                               <tr align="right">
+                            <td>Address:</td>
+                            <td><textarea name="address"></textarea>
+                            </td>
+                        </tr>
+                               <tr align="right">
+                            <td>Username:</td>
+                            <td><input type="text" name="uname">
+                            </td>
+                        </tr>
+                               <tr align="right">
+                            <td>Password:</td>
+                            <td><input type="password" name="pword">
+
+                            </td>
+                        </tr>
+                               <tr align="right">
+                            <td>Re-enter password:</td>
+                            <td><input type="password" name="repword">
+
+                            </td>
+                        </tr>
+                             <tr align="center">
+
+                            <td colspan="2"> <input type="submit" value="Create">
+
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+<img src="images/person-and-floating-shapes.webp" height="500px" width="400px" >
+              
+        </div>
+
+
+    </div>
+
+    </div>
     <script src="newuser.js"></script>
+
 </body>
+
 </html>
