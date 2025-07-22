@@ -1,0 +1,1 @@
+select sid ,'student' as role from student_user where user_name="ajay" and password="1234" and verified='yes' UNION select tid ,'teacher' as role from teacher_user where user_name="ajay" and password="1234" and verified='yes'  union select aid ,'admin' as role from adminnex where user_name="ajay" and password="1234";

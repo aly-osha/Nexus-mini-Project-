@@ -29,7 +29,7 @@ if ($result = $conn->query($validate)) {
             header("location:teacher.html");
         } else if ($role == "student") {
               $_SESSION['id'] = $row['sid'];
-            header("location:student.html");
+            header("location:student.php");
         } else if ($role == "admin") {
             $_SESSION['id'] = $row['aid'];
             header("location:admin.php");
@@ -40,5 +40,5 @@ if ($result = $conn->query($validate)) {
 } else {
     die("error");
 }
-
+$conn->close();
 ?>

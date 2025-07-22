@@ -20,7 +20,7 @@
    
 
     // Fetch data and display the form
-    $sql = "SELECT * FROM teacher_user";
+    $sql = "SELECT * FROM student_user";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
@@ -28,13 +28,13 @@
         $i=1;
         while ($row = $result->fetch_assoc()) {
            
-$sid =$row['tid'];
+$sid =$row['sid'];
             echo "
-                Sid: {$row['tid']} &nbsp;&nbsp;
+                Sid: {$row['sid']} &nbsp;&nbsp;
                 Name: {$row['user_name']} &nbsp;&nbsp;
                 Verification: {$row['verified']}<br>
 
-                <input type='hidden' name='sid' value='{$row['tid']}'>
+                <input type='hidden' name='sid' value='{$row['sid']}'>
                 <input type='radio' name='subscribe$sid' value='yes' > Yes
                 <input type='radio' name='subscribe$sid' value='no' > No
                 <hr>";
@@ -44,7 +44,7 @@ $sid =$row['tid'];
         $n=$_POST[$x];
        
 //updating the changes to the table
-        $qry1 = "UPDATE teacher_user SET verified='$n' WHERE tid=$sid";
+        $qry1 = "UPDATE student_user SET verified='$n' WHERE sid=$sid";
         if ($conn->query($qry1) === TRUE) {
             echo "Record updated for SID $sid to '$n'<br><br>";
         } else {
