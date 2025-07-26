@@ -1,10 +1,10 @@
 <html>
     <head>
         <title>
-            Welcome Admin
+            yo
         </title>
     </head>
     <body>
-        heya
+        Settings
     </body>
 </html>

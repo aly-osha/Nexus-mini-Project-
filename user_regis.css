@@ -19,7 +19,7 @@
     
       animation: slideIn 1s ease-out;
        will-change: transform, opacity;
-   box-shadow: 5px 2px 15px rgb(7, 240, 213);
+   box-shadow:0px 0px 5px rgb(0, 0, 0);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +33,7 @@
 }
 
 body {
-    background-color: #e0f2f1;
+    background-color: white;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 20px;
@@ -54,10 +54,10 @@ form {
 
 input,
 textarea {
-    box-shadow: 5px 2px 5px rgb(7, 240, 213);
+    box-shadow: 0px 0px 1px rgb(145, 157, 156);
     height:min-content;
     min-height: 6px;
-    border-color: 	#00796b;
+    border-color: 	#707a79;
     border-width: 1px;
     border-radius: 5px;
     padding: 8px;
@@ -67,14 +67,12 @@ input[type="submit"]{
     font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     text-align:center;
     height: 30px;
-box-shadow: 5px 2px 5px rgb(7, 240, 213);
      background-color:white;
 }
 
 input:focus ,textarea:focus{
-  border-color:  rgb(30, 203, 255);
+
   outline: none;        
-  box-shadow: 0 0 9px rgb(42, 212, 255);  
  transition: all 0.3s ease; 
 }
 @media (max-width: 768px) {
@@ -104,10 +102,4 @@ h1,form{
     
     font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
-h1:hover,td:hover{
-    text-shadow: 5px 0px 3px rgb(30, 203, 255);
-}
-input:hover,textarea:hover,input[type="submit"]:hover{
-    box-shadow:  5px 2px 5px rgb(53, 255, 70) ;
-    
-}
+
