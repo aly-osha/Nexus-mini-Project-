@@ -1,11 +1,10 @@
-<!DOCTYPE html>
 <html>
     <head>
         <title>
-teacher
+            wassup?
         </title>
     </head>
     <body>
-        i'm teacher 
+        wassup?
     </body>
 </html>

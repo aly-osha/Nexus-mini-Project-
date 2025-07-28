@@ -16,22 +16,22 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 //query to check for user
-$validate = "select sid ,'student' as role from student_user where user_name='$uname' and password='$pword' and verified='yes' UNION select tid ,'teacher' as role from teacher_user where user_name='$uname' and password='$pword' and verified='yes'  union select aid ,'admin' as role from adminnex where user_name='$uname' and password='$pword'";
+$validate = "select sid as user_id ,'student' as role from student_user where user_name='$uname' and password='$pword' and verified='yes' UNION select tid as user_id,'teacher' as role from teacher_user where user_name='$uname' and password='$pword' and verified='yes'  union select aid as user_id,'admin' as role from adminnex where user_name='$uname' and password='$pword'";
 if ($result = $conn->query($validate)) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $role = $row['role'];
-        
-     
+
+        $_SESSION['id'] = $row['user_id'];
         //redirection
         if ($role == "teacher") {
-              $_SESSION['id'] = $row['tid'];
-            header("location:teacher.html");
+
+            header("location:teacher.php");
         } else if ($role == "student") {
-              $_SESSION['id'] = $row['sid'];
+
             header("location:student.php");
         } else if ($role == "admin") {
-            $_SESSION['id'] = $row['aid'];
+
             header("location:admin.php");
         }
     } else {
@@ -40,5 +40,5 @@ if ($result = $conn->query($validate)) {
 } else {
     die("error");
 }
-$conn->close();
+
 ?>
