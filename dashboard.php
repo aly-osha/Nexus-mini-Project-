@@ -25,26 +25,38 @@
     $c_count = $conn->query($coursecount);
     $crow = $c_count->fetch_assoc();
     $count = $crow['number'];
+    $studentcount = " select count(*) as number from student_user;";
+    $s_count = $conn->query($studentcount);
+    $srow = $s_count->fetch_assoc();
+    $scount = $srow['number'];
+    $teachercount = " select count(*) as number from student_user;";
+    $t_count = $conn->query($teachercount);
+    $trow = $t_count->fetch_assoc();
+    $tcount = $trow['number'];
     ?>
     <h1 style="color: goldenrod;">🌟 Hello, <?php echo $name; ?>!</h1><br>
     <div class="row">
-      <div class="card" style="height: 220x; width:250px;">
-        <p style="font-size:20px;
-    padding-bottom: 6px;">Courses</p>
-
-
+      <div class="card">
+        <p>Courses</p>
         <img src="images/course.png" height="100px" width="100px">
         <br>
-
-        <p style="font: weight 500px; font-size: 25px;"><?php
-        echo $count; ?></p>
+        <?php
+        echo $count; ?>
       </div>
-
       <div class="card">
-        <p style="font-size:20px">Students</p>
-        <img src="images/studentcount.png" height="100px" width="100px">
+        <p>Students</p>
+        <img src="images/studentcount.png" height="100px" width="100px"><br>
+        <?php
+        echo $scount;
+        ?>
       </div>
-      <div class="card"></div>
+      <div class="card">
+        <p>Instructors</p>
+        <img src="images/teachercount.png" height="100px" width="100px"><br>
+        <?php
+        echo $tcount;
+        ?>
+      </div>
     </div>
 
   </div>
