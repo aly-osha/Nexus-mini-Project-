@@ -1,0 +1,12 @@
+.row{
+    display: flex;
+    flex-direction: row;
+    gap: 100px;
+}
+.card{
+height: 200px;
+width: 200px;
+background-color: rgb(246, 246, 246);
+
+text-align: center;
+}
