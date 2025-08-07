@@ -51,7 +51,7 @@ if ($role == "teacher") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $sid = $row['sid'];
-            $studentu = "insert into student_user values('$uname','$pword','$sid','NULL')";
+            $studentu = "insert into student_user values('$uname','$pword','$sid','NULL',CURRENT_DATE)";
             if ($conn->query($studentu)) {
                     header("location:login.html");
             }

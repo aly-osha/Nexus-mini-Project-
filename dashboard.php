@@ -58,6 +58,13 @@
         ?>
       </div>
     </div>
+    <div class="card" style="height: 400px; width:600px;">
+      RECENT ACTIVITY
+      <div class="listlist">yoooooooooooooooooooooooooooooooooooooooo</div>
+      /*list tile is not loading perhaps some conflict witht the outer card fic that idjit */
+    </div>
+
+  </div>
 
   </div>
 
