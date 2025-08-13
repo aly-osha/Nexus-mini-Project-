@@ -60,8 +60,28 @@
     </div>
     <div class="card" style="height: 400px; width:600px;">
       RECENT ACTIVITY
-      <div class="listlist">yoooooooooooooooooooooooooooooooooooooooo</div>
-      /*list tile is not loading perhaps some conflict witht the outer card fic that idjit */
+<div class="row">
+  <div class="heading">
+USER COURSE DATE
+</div>
+</div>
+<?php
+      $recent="select * from student_user";
+      $resultrec = $conn->query($recent);
+
+      while($rowrec=$resultrec->fetch_assoc()){
+          echo "<div class='row'>";
+          echo "<div class='profilepic'></div>";
+        echo "<div class='listlist'>";
+    echo htmlspecialchars($rowrec['user_name']);
+    echo $rowrec['register'];
+    echo "</div>";
+          echo "</div>";
+      }
+      
+      ?>
+
+     
     </div>
 
   </div>

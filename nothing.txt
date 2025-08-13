@@ -1,73 +1,96 @@
-<!DOCTYPE html>
 <html>
 
+<head>
+  <title>
+    dashboard
+  </title>
+  <link href="dashboard.css" rel="stylesheet">
+</head>
+
 <body>
-
+  <div style="padding: 20px;">
     <?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "amen";
-    $dbname = "mini";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    session_start();
+    $id = $_SESSION['id'];
+    $conn = new mysqli("localhost", "root", "amen", "mini");
     if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    echo "Connected successfully<br><br>";
-
-    // Handle the form submission BEFORE displaying data
-   
-
-    // Fetch data and display the form
-    $sql = "SELECT * FROM student_user";
-    $result = $conn->query($sql);
-
-    if ($result->num_rows > 0) {
-        echo"<form method='post' action=''>";
-        $i=1;
-        while ($row = $result->fetch_assoc()) {
-           
-$sid =$row['sid'];
-            echo "
-                Sid: {$row['sid']} &nbsp;&nbsp;
-                Name: {$row['user_name']} &nbsp;&nbsp;
-                Verification: {$row['verified']}<br>
-
-                <input type='hidden' name='sid' value='{$row['sid']}'>
-                <input type='radio' name='subscribe$sid' value='yes' > Yes
-                <input type='radio' name='subscribe$sid' value='no' > No
-                <hr>";
-               if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
-        
-        $x="subscribe".$sid;
-        $n=$_POST[$x];
-       
-//updating the changes to the table
-        $qry1 = "UPDATE student_user SET verified='$n' WHERE sid=$sid";
-        if ($conn->query($qry1) === TRUE) {
-            echo "Record updated for SID $sid to '$n'<br><br>";
-        } else {
-            echo " Error updating record: " . $conn->error;
-        }
-    }
-    $i++;
-        }
-       echo" <input type='submit' name='submit' value='Submit'>
-              </form><br>";
-        
+      die("Connection failed: " . $conn->connect_error);
     } else {
-        echo "No data found.";
+      $sql = "SELECT * FROM adminnex WHERE aid = $id";
+      $result = $conn->query($sql);
+      $row = $result->fetch_assoc();
+      $name = $row["user_name"];
     }
-
-    $conn->close();
+    $coursecount = " select count(*) as number from course;";
+    $c_count = $conn->query($coursecount);
+    $crow = $c_count->fetch_assoc();
+    $count = $crow['number'];
+    $studentcount = " select count(*) as number from student_user;";
+    $s_count = $conn->query($studentcount);
+    $srow = $s_count->fetch_assoc();
+    $scount = $srow['number'];
+    $teachercount = " select count(*) as number from student_user;";
+    $t_count = $conn->query($teachercount);
+    $trow = $t_count->fetch_assoc();
+    $tcount = $trow['number'];
     ?>
+    <h1 style="color: goldenrod;">🌟 Hello, <?php echo $name; ?>!</h1><br>
+    <div class="row">
+      <div class="card">
+        <p>Courses</p>
+        <img src="images/course.png" height="100px" width="100px">
+        <br>
+        <?php
+        echo $count; ?>
+      </div>
+      <div class="card">
+        <p>Students</p>
+        <img src="images/studentcount.png" height="100px" width="100px"><br>
+        <?php
+        echo $scount;
+        ?>
+      </div>
+      <div class="card">
+        <p>Instructors</p>
+        <img src="images/teachercount.png" height="100px" width="100px"><br>
+        <?php
+        echo $tcount;
+        ?>
+      </div>
+    </div>
+    <div class="card" style="height: 400px; width:600px;">
+      RECENT ACTIVITY
+<div class="row">
+  <div class="heading">
+USER COURSE DATE
+</div>
+</div>
+<?php
+      $recent="select * from student_user";
+      $resultrec = $conn->query($recent);
+
+      while($rowrec=$resultrec->fetch_assoc()){
+          echo "<div class='row'>";
+          echo "<div class='profilepic'></div>";
+        echo "<div class='listlist'>";
+    echo htmlspecialchars($rowrec['user_name']);
+    echo $rowrec['register'];
+    echo "</div>";
+          echo "</div>";
+      }
+      
+      ?>
+
+     
+    </div>
+
+  </div>
+
+  </div>
+
+
 
 </body>
 
+
 </html>
-
-
-
-
-//admin

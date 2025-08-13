@@ -6,6 +6,7 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css">
    <link href="admin.css" rel="stylesheet" >
+     <link href="images/loginboxjpg.png" rel="icon" type="image/x-icon">
 </head>
 <body>
 <?php
