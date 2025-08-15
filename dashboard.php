@@ -66,19 +66,17 @@ USER COURSE DATE
 </div>
 </div>
 <?php
-      $recent="select * from student_user";
+      $recent="select * from student_user order by register desc limit 5";
       $resultrec = $conn->query($recent);
-
+echo "<table  style='padding-top:10px;'>";
       while($rowrec=$resultrec->fetch_assoc()){
-          echo "<div class='row'>";
-          echo "<div class='profilepic'></div>";
-        echo "<div class='listlist'>";
-    echo htmlspecialchars($rowrec['user_name']);
-    echo $rowrec['register'];
-    echo "</div>";
-          echo "</div>";
+          echo "<tr style='padding-top: 5px;'><td style='  padding-top: 5px; text-align: center;'><div class='profilepic'></div></td>";
+    echo "<td width:190px;>".htmlspecialchars($rowrec['user_name'])."</td>";
+    echo"<td style='width:200px;'>blahblahblah</td>";
+    echo "<td >".$rowrec['register'];
+          echo "</td></tr>";
       }
-      
+      echo "<table>";
       ?>
 
      
