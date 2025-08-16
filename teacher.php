@@ -7,13 +7,13 @@
     </title>
 </head>
 
-<body>
-    <?php
+<body><div><?php
     session_start();
     $id = $_SESSION['id'];
     echo "yooo" . $id;
 
-    ?>
+    ?></div>
+    
 </body>
 
 </html>

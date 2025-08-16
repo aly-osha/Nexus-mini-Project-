@@ -29,7 +29,7 @@
     $s_count = $conn->query($studentcount);
     $srow = $s_count->fetch_assoc();
     $scount = $srow['number'];
-    $teachercount = " select count(*) as number from student_user;";
+    $teachercount = " select count(*) as number from teacher_user;";
     $t_count = $conn->query($teachercount);
     $trow = $t_count->fetch_assoc();
     $tcount = $trow['number'];
@@ -59,27 +59,27 @@
       </div>
     </div>
     <div class="card" style="height: 400px; width:600px;">
-      RECENT ACTIVITY
-<div class="row">
-  <div class="heading">
-USER COURSE DATE
-</div>
-</div>
-<?php
-      $recent="select * from student_user order by register desc limit 5";
+      RECENTLY REGISTERED
+      <div class="row">
+        <div class="heading">
+          USER COURSE DATE
+        </div>
+      </div>
+      <?php
+      $recent = "select * from student_user order by register desc limit 5";
       $resultrec = $conn->query($recent);
-echo "<table  style='padding-top:10px;'>";
-      while($rowrec=$resultrec->fetch_assoc()){
-          echo "<tr style='padding-top: 5px;'><td style='  padding-top: 5px; text-align: center;'><div class='profilepic'></div></td>";
-    echo "<td width:190px;>".htmlspecialchars($rowrec['user_name'])."</td>";
-    echo"<td style='width:200px;'>blahblahblah</td>";
-    echo "<td >".$rowrec['register'];
-          echo "</td></tr>";
+      echo "<table  style='padding-top:10px;font-size: 22px;'>";
+      while ($rowrec = $resultrec->fetch_assoc()) {
+        echo "<tr style='padding-top: 5px;'><td style='  padding-top: 5px; text-align: center;'><div class='profilepic'></div></td>";
+        echo "<td style='width:160px;' >" . htmlspecialchars($rowrec['user_name']) . "</td>";
+        echo "<td style='width:200px;padding-left:4px'>blahblahblah</td>";
+        echo "<td >" . $rowrec['register'];
+        echo "</td></tr>";
       }
       echo "<table>";
       ?>
 
-     
+
     </div>
 
   </div>

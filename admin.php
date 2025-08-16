@@ -6,7 +6,7 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css">
    <link href="admin.css" rel="stylesheet" >
-     <link href="images/loginboxjpg.png" rel="icon" type="image/x-icon">
+     <link href="images/signup-image.jpg.png" rel="icon" type="image/x-icon">
 </head>
 <body>
 <?php
@@ -74,6 +74,23 @@
         loadPage(a.dataset.page);
       });
     });
+    
+  function loadUserPage(page, btn) {
+    fetch(page)
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("user-content").innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById("user-content").innerHTML =
+          "<p style='color:red'>Error loading " + page + ": " + err.message + "</p>";
+        console.error(err);
+      });
+
+    // highlight active tab
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+  }
   </script>
 </body>
 </html>
