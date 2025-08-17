@@ -20,9 +20,11 @@ if (isset($_GET['delete'])) {
 $edit_user = null;
 if (isset($_GET['edit'])) {
     $edit_sid = intval($_GET['edit']);
-    $editresult = mysqli_query($conn, "SELECT * FROM student_user WHERE sid='$edit_sid' LIMIT 1");
-    if ($editresult && mysqli_num_rows($editresult) > 0) {
-        $edit_user = mysqli_fetch_assoc($editresult);
+    $editq1 = mysqli_query($conn, "SELECT * FROM student_user WHERE sid='$edit_sid' LIMIT 1");
+    $editq2 = mysqli_query($conn, "SELECT * FROM student_details WHERE sid='$edit_sid' LIMIT 1");
+    if (($editq1 && mysqli_num_rows($editq1) > 0) && (($editq2 && mysqli_num_rows($editq2) > 0))) {
+        $edit_user = mysqli_fetch_assoc($editq1);
+        $edit_detail = mysqli_fetch_assoc($editq2);
     }
 }
 
@@ -30,9 +32,15 @@ if (isset($_POST['update_user'])) {
     $sid = intval($_POST['sid']);
     $user = mysqli_real_escape_string($conn, $_POST['user_name']);
     $pass = mysqli_real_escape_string($conn, $_POST['password']);
+    $verify = mysqli_real_escape_string($conn, $_POST['verfiy']);
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $e_mail = mysqli_real_escape_string($conn, $_POST['email']);
+    $add = mysqli_real_escape_string($conn, $_POST['add']);
+    $dob = mysqli_real_escape_string($conn, $_POST['dob']);
     $filter = isset($_POST['filter']) ? $_POST['filter'] : ($_GET['filter'] ?? 'all');
-    $editquery = "UPDATE student_user SET user_name='$user', password='$pass' WHERE sid='$sid'";
-    if ($conn->query($editquery) === TRUE) {
+    $editquery = "UPDATE student_user SET user_name='$user', password='$pass', verified='$verify' WHERE sid='$sid'";
+    $editquery2="UPDATE student_details SET name='$name', e_mail='$e_mail', dob='$dob',address='$add' WHERE sid='$sid'";
+    if (($conn->query($editquery) === TRUE)&&($conn->query($editquery2) === TRUE)) {
         header('Location: admin.php#users');
         exit;
     } else {
@@ -62,7 +70,7 @@ $result = mysqli_query($conn, "SELECT * FROM student_user $where");
                 <input type="hidden" name="sid" value="<?php echo $edit_user['sid']; ?>">
                 <input type="hidden" name="filter" value="<?php echo $filter; ?>">
                 <div class="form-group">
-                    <label>user_name</label>
+                    <label>Username</label>
                     <input type="text" name="user_name" required
                         value="<?php echo htmlspecialchars($edit_user['user_name']); ?>">
                 </div>
@@ -70,6 +78,27 @@ $result = mysqli_query($conn, "SELECT * FROM student_user $where");
                     <label>Password</label>
                     <input type="text" name="password" required
                         value="<?php echo htmlspecialchars($edit_user['password']); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required value="<?php echo htmlspecialchars($edit_detail['name']); ?>">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="text" name="email" required
+                        value="<?php echo htmlspecialchars($edit_detail['e_mail']); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" name="add" required value="<?php echo htmlspecialchars($edit_detail['address']); ?>">
+                </div>
+                <div class="form-group">
+                    <label>DOB</label>
+                    <input type="text" name="dob" required value="<?php echo htmlspecialchars($edit_detail['dob']); ?>">
+                </div>
+                <div class="form-group">
+                    <label>VERIFY?(yes/NUL)</label>
+                    <input type="text" name="verfiy" required value="<?php echo htmlspecialchars($edit_user['verified']); ?>">
                 </div>
                 <div class="form-actions">
                     <button type="submit" name="update_user">Update</button>
