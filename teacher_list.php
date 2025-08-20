@@ -55,7 +55,7 @@ $result = mysqli_query($conn, "SELECT * FROM teacher_user $where");
 ?>
 
 <div class="container">
-    <h1>Manage Students</h1>
+    <h1>Manage Teachers</h1>
     <div class="tabs">
         <a href="#" onclick="window.loadUserPage('teacher_list.php?filter=all', this); return false;"
             class="<?php echo ($filter === 'all') ? 'active' : ''; ?>">All Students</a>

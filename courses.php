@@ -22,10 +22,12 @@ if (isset($_POST['update_course'])) {
     $cid = intval($_POST['cid']);
     $cname = mysqli_real_escape_string($conn, $_POST['course_name']);
     $update = "UPDATE course SET course_name='$cname' WHERE cid='$cid'";
-    if ($conn->query($update) === TRUE) {
-        header("Location: courses.php?filter=$filter");
-        exit;
-    } else {
+   if ($conn->query($update) === TRUE) {
+    // Reload same page with same filter
+     header('Location: admin.php#courses');
+    exit;
+}
+ else {
         echo "<div style='color:red'>Error updating course: " . $conn->error . "</div>";
         exit;
     }
@@ -42,7 +44,7 @@ $result = mysqli_query($conn, "SELECT * FROM course");
     <?php if ($edit_course): ?>
         <div class="form-section">
             <h2>Edit Course</h2>
-            <form method="post" action="courses.php?filter=<?php echo $filter; ?>">
+            <form method="post" action="courses.php?filter=<?php echo $filter; ?>" onsubmit="submitCourseForm(event,this)">
                 <input type="hidden" name="cid" value="<?php echo $edit_course['cid']; ?>">
                 <div class="form-group">
                     <label>Course Name</label>
@@ -51,7 +53,7 @@ $result = mysqli_query($conn, "SELECT * FROM course");
                 </div>
                 <div class="form-actions">
                     <button type="submit" name="update_course">Update Course</button>
-                    <a href="courses.php?filter=<?php echo $filter; ?>" style="margin-left:1rem; color:#e74c3c;">Cancel</a>
+                    <a href="#" onclick="loadPage('courses');return false;" style="margin-left:1rem; color:#e74c3c;">Cancel</a>
                 </div>
             </form>
         </div>
@@ -60,7 +62,7 @@ $result = mysqli_query($conn, "SELECT * FROM course");
     <!-- Show all courses as cards -->
     <div class="course-grid">
         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-            <div class="course-card" onclick="window.location='courses.php?edit_course=<?php echo $row['cid']; ?>&filter=<?php echo $filter; ?>'">
+            <div class="course-card" onclick="loadPage('courses?edit_course=<?php echo $row['cid']; ?>&filter=<?php echo $filter; ?>')">
                 <h3><?php echo htmlspecialchars($row['course_name']); ?></h3>
             </div>
         <?php } ?>
@@ -68,10 +70,6 @@ $result = mysqli_query($conn, "SELECT * FROM course");
 </div>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f1f5f9;
-    }
     .container {
         max-width: 950px;
         margin: 2rem auto;
@@ -141,3 +139,16 @@ $result = mysqli_query($conn, "SELECT * FROM course");
         font-weight: 600;
     }
 </style>
+
+<script>
+// Handle AJAX form submit
+function submitCourseForm(e, form) {
+    e.preventDefault();
+    const data = new FormData(form);
+    fetch(form.action, { method: "POST", body: data })
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("main-content").innerHTML = html;
+      });
+}
+</script>
