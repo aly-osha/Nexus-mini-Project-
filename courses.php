@@ -16,19 +16,49 @@ if (isset($_GET['edit_course'])) {
         $edit_course = mysqli_fetch_assoc($q);
     }
 }
-
 /* ---------------- Update Course ---------------- */
 if (isset($_POST['update_course'])) {
     $cid = intval($_POST['cid']);
     $cname = mysqli_real_escape_string($conn, $_POST['course_name']);
-    $update = "UPDATE course SET course_name='$cname' WHERE cid='$cid'";
-   if ($conn->query($update) === TRUE) {
-    // Reload same page with same filter
-     header('Location: admin.php#courses');
-    exit;
-}
- else {
-        echo "<div style='color:red'>Error updating course: " . $conn->error . "</div>";
+
+        $update = "UPDATE course SET course_name='$cname' WHERE cid='$cid'";
+
+        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+
+        
+        $oldFile = null;
+        $res = $conn->query("SELECT filepath FROM course WHERE cid='$cid'");
+        if ($res && $res->num_rows > 0) {
+            $row = $res->fetch_assoc();
+            $oldFile = $row['filepath'];
+        }
+
+        
+        $targetDir = "uploads/";
+        $fileName = basename($_FILES["image"]["name"]);
+        $filePath = $targetDir . time() . "_" . $fileName;
+
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $filePath)) {
+            $update = "UPDATE course 
+                       SET course_name='$cname', filename='$fileName', filepath='$filePath' 
+                       WHERE cid='$cid'";
+
+            
+            if ($oldFile && file_exists($oldFile)) {
+                unlink($oldFile);
+            }
+        } else {
+            echo "<div style='color:red'> Error moving uploaded file.</div>";
+            exit;
+        }
+    }
+
+    // Run the update query
+    if ($conn->query($update) === TRUE) {
+        header('Location: admin.php#courses');
+        exit;
+    } else {
+        echo "<div style='color:red'>Database error: " . $conn->error . "</div>";
         exit;
     }
 }
@@ -41,29 +71,53 @@ $result = mysqli_query($conn, "SELECT * FROM course");
     <h1>Manage Courses</h1>
 
     <!-- If a card is clicked, show the edit form -->
-    <?php if ($edit_course): ?>
-        <div class="form-section">
-            <h2>Edit Course</h2>
-            <form method="post" action="courses.php?filter=<?php echo $filter; ?>" onsubmit="submitCourseForm(event,this)">
-                <input type="hidden" name="cid" value="<?php echo $edit_course['cid']; ?>">
-                <div class="form-group">
-                    <label>Course Name</label>
-                    <input type="text" name="course_name" required 
-                           value="<?php echo htmlspecialchars($edit_course['course_name']); ?>">
-                </div>
-                <div class="form-actions">
-                    <button type="submit" name="update_course">Update Course</button>
-                    <a href="#" onclick="loadPage('courses');return false;" style="margin-left:1rem; color:#e74c3c;">Cancel</a>
-                </div>
-            </form>
-        </div>
-    <?php endif; ?>
+  <?php if ($edit_course): ?>
+    <div class="form-section">
+        <h2>Edit Course</h2>
+        <form method="post" action="courses.php?filter=<?php echo $filter; ?>" 
+              onsubmit="submitCourseForm(event,this)" 
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="cid" value="<?php echo $edit_course['cid']; ?>">
+
+            <div class="form-group">
+                <label>Course Name</label>
+                <input type="text" name="course_name" required 
+                       value="<?php echo htmlspecialchars($edit_course['course_name']); ?>">
+            </div>
+
+            <div class="form-group">
+                <label>Current Image</label><br>
+                <?php if (!empty($edit_course['filepath'])): ?>
+                    <img src="<?php echo $edit_course['filepath']; ?>" 
+                         alt="<?php echo htmlspecialchars($edit_course['course_name']); ?>" 
+                         width="200"><br>
+                <?php else: ?>
+                    <i>No image uploaded</i><br>
+                <?php endif; ?>
+            </div>
+
+            <div class="form-group">
+                <label>Upload New Image</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" name="update_course">Update Course</button>
+                <a href="#" onclick="loadPage('courses');return false;" 
+                   style="margin-left:1rem; color:#e74c3c;">Cancel</a>
+            </div>
+        </form>
+    </div>
+<?php endif; ?>
+
 
     <!-- Show all courses as cards -->
     <div class="course-grid">
         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
             <div class="course-card" onclick="loadPage('courses?edit_course=<?php echo $row['cid']; ?>&filter=<?php echo $filter; ?>')">
-                <h3><?php echo htmlspecialchars($row['course_name']); ?></h3>
+             <?php echo "<img src='" . $row['filepath'] . "' alt='" . $row['course_name'] . "' width='100'>";?>
+            <h3><?php echo htmlspecialchars($row['course_name']); ?></h3>
             </div>
         <?php } ?>
     </div>
