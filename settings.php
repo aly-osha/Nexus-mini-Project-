@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<?php
+echo "settings";
+?><!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
