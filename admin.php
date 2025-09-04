@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css">
    <link href="admin.css" rel="stylesheet" >
      <link href="images/signup-image.jpg.png" rel="icon" type="image/x-icon">
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+
 </head>
 <body>
 <?php
@@ -24,9 +28,11 @@
     ?>
   <div class="sidebar">
     <h2>Welcome</h2>
+      <img src="<?php echo $row['filepath'];?>" style="border-radius:30px;width: 30px;height: 30px;">
     <?php 
     echo $name;
     ?>
+  
     <p style="margin-bottom: 20px; color: #9cb1d6;" id="sidebar-user"></p>
     <a href="#dashboard" class="active" data-page="dashboard">Dashboard</a>
     <a href="#users" data-page="users">Users</a>
