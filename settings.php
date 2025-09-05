@@ -64,13 +64,19 @@ if (isset($_POST['Profile'])) {
 if (isset($_POST['UpdatePassword'])) {
     $old_password = $_POST['old_password'];
     $new_password = $_POST['new_password'];
+    $re_password = $_POST['new_password-re'];
 
     // Check old password directly
     if ($old_password === $row1['password']) {
-        $update = "UPDATE adminnex SET password=? WHERE aid=?";
+        if( $new_password==$re_password){
+       $update = "UPDATE adminnex SET password=? WHERE aid=?";
         $stmt = $conn->prepare($update);
         $stmt->bind_param("si", $new_password, $id);
         $stmt->execute();
+        }
+        else{
+          echo "<script>alert('passwords does not match!'); window.location='admin.php#settings';</script>";
+        }
 
         echo "<script>alert('Password updated successfully!'); window.location='admin.php#settings';</script>";
     } else {
@@ -179,13 +185,14 @@ echo "<script>alert('error');</script>";
       </div>
       <div id="collapseSecurity" class="collapse" aria-labelledby="headingSecurity" data-parent="#settingsAccordion">
         <div class="card-body">
-          <form method="post" action="update_security.php">
+          <form method="post" action="settings.php">
             <div class="form-group">
               <label>Change Password</label>
               <input type="password" name="old_password" class="form-control" placeholder="Old Password">
               <input type="password" name="new_password" class="form-control mt-2" placeholder="New Password">
+              <input type="password" name="new_password-re" class="form-control mt-2" placeholder="re-enter Password">
             </div>
-            <button type="submit" class="btn btn-warning">Update Password</button>
+            <button type="submit" class="btn btn-warning" name="UpdatePassword">Update Password</button>
           </form>
         </div>
       </div>
