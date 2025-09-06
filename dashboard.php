@@ -39,20 +39,20 @@
       <div class="card">
         <p>Courses</p>
         <img src="images/course.png" height="100px" width="100px">
-        <br>
+        
         <?php
         echo $count; ?>
       </div>
       <div class="card">
         <p>Students</p>
-        <img src="images/studentcount.png" height="100px" width="100px"><br>
+        <img src="images/studentcount.png" height="100px" width="100px">
         <?php
         echo $scount;
         ?>
       </div>
       <div class="card">
         <p>Instructors</p>
-        <img src="images/teachercount.png" height="100px" width="100px"><br>
+        <img src="images/teachercount.png" height="100px" width="100px">
         <?php
         echo $tcount;
         ?>
