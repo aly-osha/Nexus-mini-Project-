@@ -251,8 +251,5 @@ exit();
     box-shadow: 0 8px 24px rgba(44, 62, 80, 0.2);
     transform: translateY(-3px) scale(1.03);
   }
-.card{
-  border-radius: 30px;
-}
 
 </style>

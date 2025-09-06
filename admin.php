@@ -11,54 +11,7 @@
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
 
-  <style>
-    .profile-section {
-      position: relative;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .profile-section img {
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      cursor: pointer;
-    }
-
-    .profile-section p {
-      cursor: pointer;
-      margin: 5px 0;
-      color: #fff;
-    }
-
-    .profile-drawer {
-      display: none;
-      position: absolute;
-      top: 70px; /* just below profile */
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      color: #333;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-      width: 180px;
-      text-align: left;
-      z-index: 1000;
-      padding: 10px 0;
-    }
-
-    .profile-drawer a {
-      display: block;
-      padding: 10px 15px;
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-    }
-
-    .profile-drawer a:hover {
-      background: #f2f2f2;
-    }
-  </style>
+ 
 </head>
 <body>
 <?php
@@ -73,6 +26,12 @@
     $row = $result->fetch_assoc();
     $name = $row["user_name"];
   }
+  if (isset($_POST["logoutbutt"])) {
+  session_unset();    
+session_destroy();   
+header("location:login.html");
+exit();
+}
 ?>
   <div class="sidebar">
     <h2>Welcome</h2>
@@ -83,8 +42,11 @@
       <p id="profile-name"><?php echo $name; ?></p>
 
       <div id="profile-drawer" class="profile-drawer">
-        <a href="#settings" onclick="loadPage('settings')">⚙️ Settings</a>
-        <a href="logout.php"> Logout</a>
+        <button  class="settingsbutt" onclick="loadPage('settings')">Settings</button>
+        
+        <form action="settings.php" method="post">
+        <button type="submit" class="logoutbuttt" name="logoutbutt">Logout</button>
+      </form>
       </div>
     </div>
 
