@@ -6,6 +6,7 @@
   </title>
   <style>
     .course-grid {
+      padding-left: 20px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1rem;
@@ -37,7 +38,7 @@
 
 </head>
 
-<body>
+<body >
   <?php
   session_start();
   $sid = $_SESSION['id'];
@@ -52,7 +53,7 @@
     $name = $row["name"];
   }
   ?>
-  <h1><?php echo   " welcome back ".$name ; ?>
+  <h1 style="padding-left:20px;"><?php echo   " welcome back ".$name ; ?>
   </h1>
   <div class="course-grid">
     <?php while ($row1 = mysqli_fetch_assoc($result1)) { ?>

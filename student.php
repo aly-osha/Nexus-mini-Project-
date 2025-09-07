@@ -38,7 +38,7 @@
 
     <div class="nav-right">
       <div class="column">
-        <img src="images/person-and-floating-shapes.webp" alt="Profile" class="profile-pic" id="profilePic">
+        <img src="<?php echo $row['profilepic'];?>" alt="Profile" class="profile-pic" id="profilePic">
         <span><?php echo htmlspecialchars($name); ?></span>
         <div class="profile-drawer" id="drawer">
           <a href="student_profile.php">Profile</a>
@@ -54,8 +54,6 @@
      It is intended to contain content that is unique to the page and not repeated across other pages
      -->
   <main id="main-content" class="main-content">
-    <h2>Welcome to your dashboard, <?php echo htmlspecialchars($name); ?>!</h2>
-    <p>Click on the tabs above to explore your learning journey.</p>
   </main>
 
 

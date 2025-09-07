@@ -112,7 +112,7 @@ exit();
       <div class="card-header" id="headingProfile">
         <h5 class="mb-0">
           <button class="btn btn-link" data-toggle="collapse" data-target="#collapseProfile" aria-expanded="true"
-            aria-controls="collapseProfile">
+            aria-controls="collapseProfile" style=" text-decoration:none;">
             Profile Information
           </button>
         </h5>
@@ -156,7 +156,7 @@ exit();
       <div class="card-header" id="headingAccount">
         <h5 class="mb-0">
           <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseAccount"
-            aria-expanded="false" aria-controls="collapseAccount">
+            aria-expanded="false" aria-controls="collapseAccount" style=" text-decoration:none;">
             Account Settings
           </button>
         </h5>
@@ -181,7 +181,7 @@ exit();
       <div class="card-header" id="headingSecurity">
         <h5 class="mb-0">
           <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseSecurity"
-            aria-expanded="false" aria-controls="collapseSecurity">
+            aria-expanded="false" aria-controls="collapseSecurity" style=" text-decoration:none;">
             Security
           </button>
         </h5>

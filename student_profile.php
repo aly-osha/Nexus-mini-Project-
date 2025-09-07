@@ -1,3 +1,7 @@
+<?php
+session_start();
+
+?>
 <html>
     <head>
         <title>
@@ -5,6 +9,6 @@
         </title>
     </head>
     <body>
-        profile
+    <?php echo $_SESSION['id'];?>
     </body>
 </html>
