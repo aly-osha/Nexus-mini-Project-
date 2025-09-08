@@ -135,7 +135,7 @@ exit();
             <!-- Upload New Image -->
             <div class="form-group">
               <label>Upload New Profile Image</label>
-              <input type="file" name="profile_image" class="form-control-file">
+              <input type="file" name="profile_image" class="form-control-file" accept="image/*">
             </div>
 
             <!-- Full Name -->
