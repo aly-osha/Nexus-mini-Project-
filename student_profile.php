@@ -74,7 +74,10 @@ $id = $_SESSION["id"];
           <label>Email:</label>
           <input type="text" name="email" value="<?php echo htmlspecialchars($fill['e_mail']); ?>" readonly>
         </div>
-
+<div class="form-group">
+          <label>Address:</label>
+          <input type="text" name="email" value="<?php echo htmlspecialchars($fill['address']); ?>" readonly>
+        </div>
         <div class="form-group">
           <label>Current Image</label><br>
           <?php if (!empty($fill['filepath'])): ?>
