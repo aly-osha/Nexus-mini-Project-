@@ -110,6 +110,8 @@ $id = $_SESSION["id"];
   ?>
 
   <?php if ($fill): ?>
+
+  
     <div class="form-section">
       <h2>PROFILE</h2>
       <form method="post" enctype="multipart/form-data" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
