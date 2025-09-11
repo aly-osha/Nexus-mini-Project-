@@ -1,5 +1,173 @@
 <?php
-if(isset($_GET["updatebutt"])) {
-echo "yo"."yo";
+session_start();
+
+// Ensure user is logged in
+if (!isset($_SESSION["id"])) {
+    die("Unauthorized access.");
+}
+$id = intval($_SESSION["id"]);
+
+$conn = new mysqli("localhost", "root", "amen", "mini");
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch current student details
+$prefilq = "SELECT * FROM student_details WHERE sid=$id";
+$result = $conn->query($prefilq);
+$fill = $result->fetch_assoc();
+
+if (isset($_POST["updatebutt"])) {
+    $name = $conn->real_escape_string($_POST["name"]);
+    $dob = $conn->real_escape_string($_POST["dob"]);
+    $gender = $conn->real_escape_string($_POST["gender"]);
+    $email = $conn->real_escape_string($_POST["email"]);
+    $address = $conn->real_escape_string($_POST["address"]);
+    $profilePath = $fill["profilepic"]; // default old image
+
+    // Handle new image if uploaded
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $oldFile = $profilePath;
+
+        $targetDir = "uploads/";
+        $fileName = preg_replace("/[^A-Za-z0-9_\-\.]/", "_", basename($_FILES["image"]["name"]));
+        $filePath = $targetDir . time() . "_" . $fileName;
+
+        // Check MIME type
+        $allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!in_array($_FILES["image"]["type"], $allowedTypes)) {
+            die("<div style='color:red'>Invalid file type. Only JPG, PNG, GIF allowed.</div>");
+        }
+
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $filePath)) {
+            $profilePath = $filePath;
+
+            // delete old file only if inside uploads folder
+            if ($oldFile && strpos($oldFile, "uploads/") === 0 && file_exists($oldFile)) {
+                unlink($oldFile);
+            }
+        } else {
+            echo "<div style='color:red'>Error moving uploaded file.</div>";
+            exit;
+        }
+    }
+
+  
+    $update = "UPDATE student_details
+               SET name='$name', dob='$dob', gender='$gender',
+                   e_mail='$email', address='$address', profilepic='$profilePath'
+               WHERE sid=$id";
+
+    if ($conn->query($update)) {
+        // Refresh to show updated data
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "Error updating record: " . $conn->error;
+    }
 }
 ?>
+<html>
+
+<head>
+  <link href="images/signup-image.jpg.png" rel="icon" type="image/x-icon">
+  <title>Profile</title>
+  <style>
+    .form-section {
+      width: 400px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    input[readonly],
+    input[disabled] {
+      background-color: white;
+      color: #000;
+      border: none;
+    }
+
+    .form-actions {
+      margin-top: 15px;
+    }
+
+    textarea[readonly],
+    textarea[disabled] {
+      background-color: white;
+      color: #000;
+      border: none;
+      cursor: not-allowed;
+    }
+  </style>
+  <script>
+    function enableEdit() {
+      let inputs = document.querySelectorAll(".form-section input, .form-section textarea");
+      inputs.forEach(el => el.removeAttribute("readonly"));
+      inputs.forEach(el => el.removeAttribute("disabled"));
+
+      document.getElementById("updateBtn").style.display = "inline-block";
+      document.getElementById("cancelBtn").style.display = "inline-block";
+      document.getElementById("editBtn").style.display = "none";
+    }
+
+    function cancelEdit() {
+      location.reload();
+    }
+  </script>
+</head>
+
+<body>
+  <?php if ($fill): ?>
+    <div class="form-section">
+      <h2>PROFILE</h2>
+      <form method="post" enctype="multipart/form-data" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+
+        <div class="form-group">
+          <label>NAME:</label>
+          <input type="text" name="name" value="<?php echo htmlspecialchars($fill['name']); ?>" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>DOB:</label>
+          <input type="date" name="dob" value="<?php echo htmlspecialchars($fill['dob']); ?>" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Gender:</label>
+          <input type="text" name="gender" value="<?php echo htmlspecialchars($fill['gender']); ?>" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="text" name="email" value="<?php echo htmlspecialchars($fill['e_mail']); ?>" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Address:</label>
+          <textarea name="address" readonly><?php echo htmlspecialchars($fill['address']); ?></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Current Image</label><br>
+          <?php if (!empty($fill['profilepic'])): ?>
+            <img src="<?php echo htmlspecialchars($fill['profilepic']); ?>" width="200" alt="profilepic"><br>
+          <?php else: ?>
+            <i>No image uploaded</i><br>
+          <?php endif; ?>
+        </div>
+
+        <div class="form-group">
+          <label>Upload New Image</label>
+          <input type="file" name="image" accept="image/*" disabled>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="editBtn" onclick="enableEdit()">Edit</button>
+          <button type="submit" id="updateBtn" name="updatebutt" style="display:none;">Update</button>
+          <button type="button" id="cancelBtn" onclick="cancelEdit()" style="display:none;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  <?php endif; ?>
+</body>
+</html>

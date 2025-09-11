@@ -1,6 +1,71 @@
 <?php
 session_start();
-$id = $_SESSION["id"];
+
+// Ensure user is logged in
+if (!isset($_SESSION["id"])) {
+    die("Unauthorized access.");
+}
+$id = intval($_SESSION["id"]);
+
+$conn = new mysqli("localhost", "root", "amen", "mini");
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch current student details
+$prefilq = "SELECT * FROM student_details WHERE sid=$id";
+$result = $conn->query($prefilq);
+$fill = $result->fetch_assoc();
+
+if (isset($_POST["updatebutt"])) {
+    $name = $conn->real_escape_string($_POST["name"]);
+    $dob = $conn->real_escape_string($_POST["dob"]);
+    $gender = $conn->real_escape_string($_POST["gender"]);
+    $email = $conn->real_escape_string($_POST["email"]);
+    $address = $conn->real_escape_string($_POST["address"]);
+    $profilePath = $fill["profilepic"]; // default old image
+
+    // Handle new image if uploaded
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $oldFile = $profilePath;
+
+        $targetDir = "uploads/";
+        $fileName = preg_replace("/[^A-Za-z0-9_\-\.]/", "_", basename($_FILES["image"]["name"]));
+        $filePath = $targetDir . time() . "_" . $fileName;
+
+        // Check MIME type
+        $allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!in_array($_FILES["image"]["type"], $allowedTypes)) {
+            die("<div style='color:red'>Invalid file type. Only JPG, PNG, GIF allowed.</div>");
+        }
+
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $filePath)) {
+            $profilePath = $filePath;
+
+            // delete old file only if inside uploads folder
+            if ($oldFile && strpos($oldFile, "uploads/") === 0 && file_exists($oldFile)) {
+                unlink($oldFile);
+            }
+        } else {
+            echo "<div style='color:red'>Error moving uploaded file.</div>";
+            exit;
+        }
+    }
+
+  
+    $update = "UPDATE student_details
+               SET name='$name', dob='$dob', gender='$gender',
+                   e_mail='$email', address='$address', profilepic='$profilePath'
+               WHERE sid=$id";
+
+    if ($conn->query($update)) {
+        // Refresh to show updated data
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "Error updating record: " . $conn->error;
+    }
+}
 ?>
 <html>
 
@@ -31,87 +96,48 @@ $id = $_SESSION["id"];
       background-color: white;
       color: #000;
       border: none;
-      cursor: copy;
+      cursor: not-allowed;
     }
   </style>
   <script>
-    function enableEdit() {
-      // Enable all input fields
-      let inputs = document.querySelectorAll(".form-section input, .form-section textarea");
-      inputs.forEach(el => el.removeAttribute("readonly"));
-      inputs.forEach(el => el.removeAttribute("disabled"));
+  function enableEdit() {
+    let inputs = document.querySelectorAll(".form-section input, .form-section textarea");
+    inputs.forEach(el => el.removeAttribute("readonly"));
+    inputs.forEach(el => el.removeAttribute("disabled"));
 
-      // Show update + cancel, hide edit
-      document.getElementById("updateBtn").style.display = "inline-block";
-      document.getElementById("cancelBtn").style.display = "inline-block";
-      document.getElementById("editBtn").style.display = "none";
-    }
+    document.getElementById("updateBtn").style.display = "inline-block";
+    document.getElementById("cancelBtn").style.display = "inline-block";
+    document.getElementById("editBtn").style.display = "none";
 
-    function cancelEdit() {
-      // Reload the page (back to readonly mode)
-      location.reload();
-    }
-  </script>
+    // Re-enable image input
+    document.getElementById("imageInput").disabled = false;
+
+    // Make image clickable to trigger file picker
+    document.getElementById("profileImage").addEventListener("click", () => {
+      document.getElementById("imageInput").click();
+    });
+
+    // Show preview immediately after selection
+    document.getElementById("imageInput").addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          document.getElementById("profileImage").src = ev.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    });
+  }
+
+  function cancelEdit() {
+    location.reload();
+  }
+</script>
+
 </head>
 
 <body>
-  <?php
-  $conn = new mysqli("localhost", "root", "amen", "mini");
-
-  // Fetch current student details
-  $prefilq = "SELECT * FROM student_details WHERE sid=$id";
-  $result = $conn->query($prefilq);
-  $fill = $result->fetch_assoc();
-
-  if (isset($_POST["updatebutt"])) {
-    $name = $_POST["name"];
-    $dob = $_POST["dob"];
-    $gender = $_POST["gender"];
-    $email = $_POST["email"];
-    $address = $_POST["address"];
-    $profilePath = $_FILES['image']; // keep old image by default
-
-    // If new image uploaded
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-      $oldFile = null;
-      $res = $conn->query("SELECT profilepic FROM student_details WHERE sid='$id'");
-      if ($res && $res->num_rows > 0) {
-        $row = $res->fetch_assoc();
-        $oldFile = $row['profilepic'];
-      }
-
-      $targetDir = "uploads/";
-      $fileName = preg_replace("/[^A-Za-z0-9_\-\.]/", "_", basename($_FILES["image"]["name"]));
-      $filePath = $targetDir . time() . "_" . $fileName;
-
-      if (move_uploaded_file($_FILES["image"]["tmp_name"], $filePath)) {
-        $profilePath = $filePath;
-
-        // delete old file only if inside uploads folder
-        if ($oldFile && strpos($oldFile, "uploads/") === 0 && file_exists($oldFile)) {
-          unlink($oldFile);
-        }
-      } else {
-        echo "<div style='color:red'>Error moving uploaded file.</div>";
-        exit;
-      }
-    }
-
-    // Update student details
-    $update = "UPDATE student_details
-               SET name='$name', dob='$dob', gender='$gender', e_mail='$email', address='$address', profilepic='$profilePath'
-               WHERE sid='$id'";
-    $conn->query($update);
-
-    // Refresh data after update
-    $result = $conn->query($prefilq);
-    $fill = $result->fetch_assoc();
-  }
-  ?>
-
   <?php if ($fill): ?>
-
-  
     <div class="form-section">
       <h2>PROFILE</h2>
       <form method="post" enctype="multipart/form-data" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
@@ -141,19 +167,29 @@ $id = $_SESSION["id"];
           <textarea name="address" readonly><?php echo htmlspecialchars($fill['address']); ?></textarea>
         </div>
 
-        <div class="form-group">
-          <label>Current Image</label><br>
-          <?php if (!empty($fill['profilepic'])): ?>
-            <img src="<?php echo htmlspecialchars($fill['profilepic']); ?>" width="200" alt="profilepic"><br>
-          <?php else: ?>
-            <i>No image uploaded</i><br>
-          <?php endif; ?>
-        </div>
+       <div class="form-group">
+  <label>Profile Picture</label><br>
 
-        <div class="form-group">
-          <label>Upload New Image</label>
-          <input type="file" name="image" accept="image/*" disabled>
-        </div>
+  <!-- Hidden file input -->
+  <input type="file" name="image" id="imageInput" accept="image/*" style="display:none;" disabled>
+
+  <!-- Make the current image clickable -->
+  <?php if (!empty($fill['profilepic'])): ?>
+    <img src="<?php echo htmlspecialchars($fill['profilepic']); ?>" 
+         id="profileImage"
+         width="200" 
+         alt="profilepic"
+         style="cursor:pointer; border:2px solid #ccc; border-radius:8px;">
+  <?php else: ?>
+    <img src="images/default-avatar.png"
+         id="profileImage"
+         width="200" 
+         alt="No profilepic"
+         style="cursor:pointer; border:2px dashed #ccc; border-radius:8px;">
+  <?php endif; ?>
+</div>
+
+
 
         <div class="form-actions">
           <button type="button" id="editBtn" onclick="enableEdit()">Edit</button>
@@ -164,5 +200,4 @@ $id = $_SESSION["id"];
     </div>
   <?php endif; ?>
 </body>
-
 </html>
