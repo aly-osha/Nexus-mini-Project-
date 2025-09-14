@@ -19,7 +19,7 @@ if ($conn->connect_error) {
 }
 //quries 
 $teacher = "insert into teacher_details(name,e_mail,cid,dob,address) values('$name','$email',0,'$dob','$addres')";
-$student = "insert into student_details(name,e_mail,cid,dob,address) values('$name','$email',0,'$dob','$addres')";
+$student = "insert into student_details(name,e_mail,cid,dob,address,register) values('$name','$email',0,'$dob','$addres',CURRENT_DATE)";
 
 if ($role == "teacher") {
     if ($conn->query($teacher)) {
@@ -51,7 +51,7 @@ if ($role == "teacher") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $sid = $row['sid'];
-            $studentu = "insert into student_user values('$uname','$pword','$sid','NULL',CURRENT_DATE)";
+            $studentu = "insert into student_user values('$uname','$pword','$sid','NULL')";
             if ($conn->query($studentu)) {
                     header("location:login.html");
             }

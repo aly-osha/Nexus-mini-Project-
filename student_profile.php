@@ -74,6 +74,10 @@ if (isset($_POST["updatebutt"])) {
   <title>Profile</title>
   <style>
     .form-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       width: 400px;
       padding: 20px;
       border: 1px solid #ccc;
@@ -85,6 +89,7 @@ if (isset($_POST["updatebutt"])) {
       background-color: white;
       color: #000;
       border: none;
+
     }
 
     .form-actions {
@@ -97,6 +102,11 @@ if (isset($_POST["updatebutt"])) {
       color: #000;
       border: none;
       cursor: not-allowed;
+    }
+    body{
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   </style>
   <script>
@@ -141,30 +151,42 @@ if (isset($_POST["updatebutt"])) {
     <div class="form-section">
       <h2>PROFILE</h2>
       <form method="post" enctype="multipart/form-data" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-
+ <?php if (!empty($fill['profilepic'])): ?>
+    <img src="<?php echo $fill['profilepic']; ?>" 
+         id="profileImage"
+         width="200" 
+         alt="profilepic"
+         style="cursor:pointer; border:2px solid #ccc; border-radius:100px;width:200px;height:200px;">
+  <?php else: ?>
+    <img src="images/default-avatar.png"
+         id="profileImage"
+         width="200" 
+         alt="No profilepic"
+         style="cursor:pointer; border:2px dashed #ccc; border-radius:8px;">
+  <?php endif; ?>
         <div class="form-group">
           <label>NAME:</label>
-          <input type="text" name="name" value="<?php echo htmlspecialchars($fill['name']); ?>" readonly>
+          <input type="text" name="name" value="<?php echo $fill['name']; ?>" readonly>
         </div>
 
         <div class="form-group">
           <label>DOB:</label>
-          <input type="date" name="dob" value="<?php echo htmlspecialchars($fill['dob']); ?>" readonly>
+          <input type="date" name="dob" value="<?php echo $fill['dob']; ?>" readonly>
         </div>
 
         <div class="form-group">
           <label>Gender:</label>
-          <input type="text" name="gender" value="<?php echo htmlspecialchars($fill['gender']); ?>" readonly>
+          <input type="text" name="gender" value="<?php echo $fill['gender']; ?>" readonly>
         </div>
 
         <div class="form-group">
           <label>Email:</label>
-          <input type="text" name="email" value="<?php echo htmlspecialchars($fill['e_mail']); ?>" readonly>
+          <input type="text" name="email" value="<?php echo $fill['e_mail']; ?>" readonly>
         </div>
 
         <div class="form-group">
           <label>Address:</label>
-          <textarea name="address" readonly><?php echo htmlspecialchars($fill['address']); ?></textarea>
+          <textarea name="address" readonly><?php echo $fill['address']; ?></textarea>
         </div>
 
        <div class="form-group">
@@ -174,19 +196,7 @@ if (isset($_POST["updatebutt"])) {
   <input type="file" name="image" id="imageInput" accept="image/*" style="display:none;" disabled>
 
   <!-- Make the current image clickable -->
-  <?php if (!empty($fill['profilepic'])): ?>
-    <img src="<?php echo htmlspecialchars($fill['profilepic']); ?>" 
-         id="profileImage"
-         width="200" 
-         alt="profilepic"
-         style="cursor:pointer; border:2px solid #ccc; border-radius:8px;">
-  <?php else: ?>
-    <img src="images/default-avatar.png"
-         id="profileImage"
-         width="200" 
-         alt="No profilepic"
-         style="cursor:pointer; border:2px dashed #ccc; border-radius:8px;">
-  <?php endif; ?>
+ 
 </div>
 
 

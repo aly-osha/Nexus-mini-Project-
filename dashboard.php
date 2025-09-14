@@ -66,16 +66,20 @@
         </div>
       </div>
       <?php
-      $recent = "select * from student_user order by register desc limit 5";
+      $recent = "select * from student_details  order by register limit 5";
       $resultrec = $conn->query($recent);
-      echo "<table  style='padding-top:10px;font-size: 22px;'>";
+      echo "<table  style='padding-top:10px;font-size: 22px;',bordere=2>";
       while ($rowrec = $resultrec->fetch_assoc()) {
-        echo "<tr style='padding-top: 5px;'><td style='  padding-top: 5px; text-align: center;'><div class='profilepic'></div></td>";
-        echo "<td style='width:160px;' >" . htmlspecialchars($rowrec['user_name']) . "</td>";
-        echo "<td style='width:200px;padding-left:4px'>blahblahblah</td>";
-        echo "<td >" . $rowrec['register'];
-        echo "</td></tr>";
-      }
+    echo "<tr style='padding-top: 5px;'>";
+echo "<td style='padding-top: 5px; text-align: center;'>
+        <img src='" . $rowrec['profilepic'] . "' style='border-radius:100px; width:50px; height:50px;'>
+      </td>";
+    echo "<td style='width:160px;'>" . htmlspecialchars($rowrec['name']) . "</td>";
+    echo "<td style='width:200px;padding-left:4px'>blahblahblah</td>";
+    echo "<td>".$rowrec['register'];
+    echo "</td></tr>";
+}
+
       echo "<table>";
       ?>
 
