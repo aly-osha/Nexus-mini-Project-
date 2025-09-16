@@ -89,7 +89,7 @@ if (isset($_POST["updatebutt"])) {
       background-color: white;
       color: #000;
       border: none;
-
+    font-size: 20px;
     }
 
     .form-actions {
@@ -102,11 +102,18 @@ if (isset($_POST["updatebutt"])) {
       color: #000;
       border: none;
       cursor: not-allowed;
+      width: 200px;
     }
     body{
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+    .form-group{
+      font-size: 20;
+    }
+    input{
+      font-size: 20px;
     }
   </style>
   <script>
@@ -164,6 +171,8 @@ if (isset($_POST["updatebutt"])) {
          alt="No profilepic"
          style="cursor:pointer; border:2px dashed #ccc; border-radius:8px;">
   <?php endif; ?>
+   <input type="file" name="image" id="imageInput" accept="image/*" style="display:none;" disabled>
+
         <div class="form-group">
           <label>NAME:</label>
           <input type="text" name="name" value="<?php echo $fill['name']; ?>" readonly>
@@ -188,16 +197,12 @@ if (isset($_POST["updatebutt"])) {
           <label>Address:</label>
           <textarea name="address" readonly><?php echo $fill['address']; ?></textarea>
         </div>
-
-       <div class="form-group">
-  <label>Profile Picture</label><br>
+<br>
 
   <!-- Hidden file input -->
-  <input type="file" name="image" id="imageInput" accept="image/*" style="display:none;" disabled>
-
-  <!-- Make the current image clickable -->
  
-</div>
+ 
+
 
 
 
