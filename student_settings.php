@@ -9,18 +9,24 @@
             align-items: center;
             align-content: center;
             height: 100px;
-
+  width: 500px;
   background-color: #1e293b;
             border-radius: 30px;
            text-align: center;
         font-size: 20;
         font-weight: 100;
         color:white;
-        }
+}
+body{
+    display: flex;
+    flex-direction: column;
+  align-items: center;
+}
+    
     </style>
 </head>
 
-<body>
+<body >
     <?php
     session_start();
     $id = $_SESSION['id'];

@@ -21,6 +21,10 @@
     $row = $result->fetch_assoc();
     $name = $row["name"];
   }
+  if(isset($_POST['logout'])){
+    session_destroy();
+    header('location:login.html');
+  }
   ?>
 
   <!-- === NAVIGATION BAR === -->
@@ -43,7 +47,7 @@
         <div class="profile-drawer" id="drawer">
           <a href="student_profile.php">Profile</a>
           <a href="student_settings.php">Settings</a>
-          <a href="#">Logout</a>
+<form action="student.php" method="post">          <button type="submit" name="logout">Logout</button></form>
         </div>
       </div>
     </div>
@@ -58,7 +62,6 @@
 
 
   <script src="student.js">
-
   </script>
 </body>
 
