@@ -12,14 +12,15 @@ $addres = $_REQUEST['address'];
 $pword = $_REQUEST['repword'];
 $uname = $_REQUEST['uname'];
 $role = $_REQUEST['role'];
+$phone=$_REQUEST['phone'];
 //establishing connection
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 //quries 
-$teacher = "insert into teacher_details(name,e_mail,cid,dob,address) values('$name','$email',0,'$dob','$addres')";
-$student = "insert into student_details(name,e_mail,cid,dob,address,register) values('$name','$email',0,'$dob','$addres',CURRENT_DATE)";
+$teacher = "insert into teacher_details(name,e_mail,cid,dob,address,phone,register) values('$name','$email',0,'$dob','$addres','$phone',CURRENT_DATE)";
+$student = "insert into student_details(name,e_mail,cid,dob,address,register,phone) values('$name','$email',0,'$dob','$addres',CURRENT_DATE,$phone)";
 
 if ($role == "teacher") {
     if ($conn->query($teacher)) {
@@ -29,7 +30,7 @@ if ($role == "teacher") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $tid = $row['tid'];
-            $teachu = "insert into teacher_user values('$uname','$pword','$tid','NULL')";
+            $teachu = "insert into teacher_user values('$uname','$pword','$tid','NUL',CURRENT_DATE)";
             if ($conn->query($teachu)) {
                     header("location:login.html");
             }
@@ -51,7 +52,7 @@ if ($role == "teacher") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $sid = $row['sid'];
-            $studentu = "insert into student_user values('$uname','$pword','$sid','NULL')";
+            $studentu = "insert into student_user values('$uname','$pword','$sid','NULL',CURRENT_DATE)";
             if ($conn->query($studentu)) {
                     header("location:login.html");
             }

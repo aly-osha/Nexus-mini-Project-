@@ -1,10 +1,8 @@
 <?php
 session_start();
-$sid = $_SESSION['id'];
-$conn = new mysqli("localhost", "root", "amen", "mini");
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
-}
+require_once 'config.php';
+$tid = $_SESSION['id'];
+$conn = getConnection();
 
 // Handle password update
 if (isset($_POST['update_password'])) {
@@ -13,12 +11,12 @@ if (isset($_POST['update_password'])) {
     $confirm_password = mysqli_real_escape_string($conn, $_POST['confirm_password']);
     
     // Get current password
-    $user_result = $conn->query("SELECT su.password FROM student_user su WHERE su.sid = $sid");
+    $user_result = $conn->query("SELECT tu.password FROM teacher_user tu WHERE tu.tid = $tid");
     $user = $user_result->fetch_assoc();
     
     if ($old_password === $user['password']) {
         if ($new_password === $confirm_password) {
-            $update_sql = "UPDATE student_user SET password='$new_password' WHERE sid=$sid";
+            $update_sql = "UPDATE teacher_user SET password='$new_password' WHERE tid=$tid";
             if ($conn->query($update_sql)) {
                 echo "<script>showAlert('Password updated successfully!', 'success');</script>";
             } else {
@@ -26,21 +24,21 @@ if (isset($_POST['update_password'])) {
             }
         } else {
             echo "<script>showAlert('New passwords do not match!', 'error');</script>";
-    }
-  } else {
+        }
+    } else {
         echo "<script>showAlert('Current password is incorrect!', 'error');</script>";
     }
 }
 
 // Handle username update
 if (isset($_POST['update_username'])) {
-    $new_username = mysqli_real_escape_string($conn, $_POST['new_username']);
+    $new_username = escapeString($conn, $_POST['new_username']);
     
     // Check if username already exists
-    $check_username = $conn->query("SELECT user_name FROM student_user WHERE user_name='$new_username' AND sid != $sid");
+    $check_username = $conn->query("SELECT user_name FROM teacher_user WHERE user_name='$new_username' AND tid != $tid");
     
     if ($check_username->num_rows == 0) {
-        $update_sql = "UPDATE student_user SET user_name='$new_username' WHERE sid=$sid";
+        $update_sql = "UPDATE teacher_user SET user_name='$new_username' WHERE tid=$tid";
         if ($conn->query($update_sql)) {
             echo "<script>showAlert('Username updated successfully!', 'success');</script>";
         } else {
@@ -51,33 +49,69 @@ if (isset($_POST['update_username'])) {
     }
 }
 
+// Handle profile picture upload
+if (isset($_POST['update_profile_pic'])) {
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+        $uploadResult = uploadFile($_FILES['profile_image']);
+        
+        if ($uploadResult) {
+            // Get current profile picture to delete old one
+            $current_pic = $conn->query("SELECT profilepic FROM teacher_details WHERE tid = $tid");
+            $old_pic = $current_pic->fetch_assoc()['profilepic'];
+            
+            // Delete old profile picture if exists
+            if ($old_pic && file_exists($old_pic)) {
+                unlink($old_pic);
+            }
+            
+            // Update database with new profile picture
+            $update_sql = "UPDATE teacher_details SET profilepic = '{$uploadResult['filepath']}' WHERE tid = $tid";
+            
+            if ($conn->query($update_sql)) {
+                echo "<script>showAlert('Profile picture updated successfully!', 'success');</script>";
+                // Refresh the page to show new profile picture
+                echo "<script>setTimeout(() => window.location.reload(), 1500);</script>";
+            } else {
+                echo "<script>showAlert('Error updating profile picture: " . $conn->error . "', 'error');</script>";
+            }
+        } else {
+            echo "<script>showAlert('Error uploading profile picture. Please try again.', 'error');</script>";
+        }
+    } else {
+        echo "<script>showAlert('Please select a valid image file.', 'error');</script>";
+    }
+}
+
 // Handle account deletion
 if (isset($_POST['delete_account'])) {
     $confirm_delete = mysqli_real_escape_string($conn, $_POST['confirm_delete']);
     
     if (strtolower($confirm_delete) === 'delete') {
-        // Delete user data
-        $conn->query("DELETE FROM submissions WHERE student_id = $sid");
-        $conn->query("DELETE FROM enrollments WHERE student_id = $sid");
-        $conn->query("DELETE FROM student_user WHERE sid = $sid");
-        $conn->query("DELETE FROM student_details WHERE sid = $sid");
+        // Delete teacher data (in proper order due to foreign key constraints)
+        $conn->query("DELETE FROM course_materials WHERE uploaded_by = $tid");
+        $conn->query("DELETE FROM submissions WHERE assignment_id IN (SELECT assignment_id FROM assignments WHERE teacher_id = $tid)");
+        $conn->query("DELETE FROM assignments WHERE teacher_id = $tid");
+        $conn->query("DELETE FROM enrollments WHERE course_id IN (SELECT cid FROM course WHERE created_by = $tid)");
+        $conn->query("DELETE FROM course WHERE created_by = $tid");
+        $conn->query("DELETE FROM teacher_user WHERE tid = $tid");
+        $conn->query("DELETE FROM teacher_details WHERE tid = $tid");
         
         session_destroy();
         echo "<script>alert('Account deleted successfully!'); window.location.href='login.html';</script>";
-    exit();
-  } else {
+        exit();
+    } else {
         echo "<script>showAlert('Please type DELETE to confirm account deletion.', 'error');</script>";
     }
 }
 
-// Get student and user details
-$student_result = $conn->query("
-    SELECT sd.*, su.user_name 
-    FROM student_details sd 
-    JOIN student_user su ON sd.sid = su.sid 
-    WHERE sd.sid = $sid
+// Get teacher and user details
+$teacher_result = $conn->query("
+    SELECT td.*, tu.user_name 
+    FROM teacher_details td 
+    JOIN teacher_user tu ON td.tid = tu.tid 
+    WHERE td.tid = $tid
 ");
-$student = $student_result->fetch_assoc();
+$teacher = $teacher_result->fetch_assoc();
 ?>
 
 <!DOCTYPE html>
@@ -85,8 +119,8 @@ $student = $student_result->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Settings</title>
-    <link rel="stylesheet" href="student.css">
+    <title>Teacher Settings</title>
+    <link rel="stylesheet" href="teacher.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
@@ -106,7 +140,7 @@ $student = $student_result->fetch_assoc();
         }
         
         .settings-header {
-            background: linear-gradient(135deg, #3498db, #2ecc71);
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
             padding: 2rem;
             text-align: center;
@@ -121,7 +155,7 @@ $student = $student_result->fetch_assoc();
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 2rem;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #2c3e50;
         }
         
         .settings-section h3 {
@@ -154,8 +188,8 @@ $student = $student_result->fetch_assoc();
         
         .form-group input:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            border-color: #2c3e50;
+            box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
         }
         
         .btn {
@@ -171,12 +205,12 @@ $student = $student_result->fetch_assoc();
         }
         
         .btn-primary {
-            background-color: #3498db;
+            background-color: #2c3e50;
             color: white;
         }
         
         .btn-primary:hover {
-            background-color: #2980b9;
+            background-color: #34495e;
         }
         
         .btn-warning {
@@ -210,14 +244,14 @@ $student = $student_result->fetch_assoc();
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: #3498db;
+            color: #2c3e50;
             text-decoration: none;
             margin-bottom: 2rem;
             font-weight: 500;
         }
         
         .back-link:hover {
-            color: #2980b9;
+            color: #34495e;
         }
         
         .danger-zone {
@@ -275,21 +309,47 @@ $student = $student_result->fetch_assoc();
         <div class="settings-header">
             <h1><i class="fas fa-cog"></i> Account Settings</h1>
             <p>Manage your account preferences and security</p>
-      </div>
+        </div>
         
         <div class="settings-content">
             <a href="javascript:history.back()" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
             </a>
             
+            <!-- Profile Picture Settings -->
+            <div class="settings-section">
+                <h3><i class="fas fa-image"></i> Profile Picture</h3>
+                <div class="current-info">
+                    <strong>Current Profile Picture:</strong><br>
+                    <?php if (!empty($teacher['profilepic'])): ?>
+                        <img src="<?php echo $teacher['profilepic']; ?>" alt="Current Profile Picture" 
+                             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-top: 10px;">
+                    <?php else: ?>
+                        <div style="width: 100px; height: 100px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                            <i class="fas fa-user" style="font-size: 2rem; color: #999;"></i>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="profile_image">Upload New Profile Picture</label>
+                        <input type="file" id="profile_image" name="profile_image" accept="image/*" required>
+                        <small style="color: #666; font-size: 0.9rem;">Supported formats: JPG, PNG, GIF (Max 5MB)</small>
+                    </div>
+                    <button type="submit" name="update_profile_pic" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Update Profile Picture
+                    </button>
+                </form>
+            </div>
+            
             <!-- Username Settings -->
             <div class="settings-section">
                 <h3><i class="fas fa-user"></i> Username</h3>
                 <div class="current-info">
-                    <strong>Current Username:</strong> <?php echo htmlspecialchars($student['user_name']); ?>
+                    <strong>Current Username:</strong> <?php echo htmlspecialchars($teacher['user_name']); ?>
                 </div>
                 <form method="post">
-            <div class="form-group">
+                    <div class="form-group">
                         <label for="new_username">New Username</label>
                         <input type="text" id="new_username" name="new_username" required 
                                placeholder="Enter new username">
@@ -299,7 +359,7 @@ $student = $student_result->fetch_assoc();
                     </button>
                 </form>
             </div>
-
+            
             <!-- Password Settings -->
             <div class="settings-section">
                 <h3><i class="fas fa-lock"></i> Password</h3>
@@ -313,7 +373,7 @@ $student = $student_result->fetch_assoc();
                         <input type="password" id="new_password" name="new_password" required 
                                minlength="6" placeholder="Minimum 6 characters">
                     </div>
-            <div class="form-group">
+                    <div class="form-group">
                         <label for="confirm_password">Confirm New Password</label>
                         <input type="password" id="confirm_password" name="confirm_password" required>
                     </div>
@@ -322,7 +382,7 @@ $student = $student_result->fetch_assoc();
                     </button>
                 </form>
             </div>
-
+            
             <!-- Privacy & Data -->
             <div class="settings-section">
                 <h3><i class="fas fa-shield-alt"></i> Privacy & Data</h3>
@@ -331,7 +391,7 @@ $student = $student_result->fetch_assoc();
                     You can request a copy of your data or delete your account at any time.
                 </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="student_profile.php" class="btn btn-primary">
+                    <a href="teacher_profile.php" class="btn btn-primary">
                         <i class="fas fa-user-edit"></i> Edit Profile
                     </a>
                     <button onclick="exportData()" class="btn btn-secondary">
@@ -339,13 +399,29 @@ $student = $student_result->fetch_assoc();
                     </button>
                 </div>
             </div>
-
+            
+            <!-- Teaching Preferences -->
+            <div class="settings-section">
+                <h3><i class="fas fa-chalkboard-teacher"></i> Teaching Preferences</h3>
+                <p style="color: #7f8c8d; margin-bottom: 1rem;">
+                    Customize your teaching experience and notification preferences.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button onclick="showNotificationSettings()" class="btn btn-primary">
+                        <i class="fas fa-bell"></i> Notification Settings
+                    </button>
+                    <button onclick="showGradingPreferences()" class="btn btn-secondary">
+                        <i class="fas fa-star"></i> Grading Preferences
+                    </button>
+                </div>
+            </div>
+            
             <!-- Danger Zone -->
             <div class="settings-section danger-zone">
                 <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
                 <div class="warning-text">
                     <strong>Warning:</strong> Deleting your account is permanent and cannot be undone. 
-                    All your course progress, submissions, and data will be permanently removed.
+                    All your courses, assignments, materials, and student data will be permanently removed.
                 </div>
                 <form method="post" onsubmit="return confirmDelete()">
                     <div class="form-group">
@@ -356,11 +432,11 @@ $student = $student_result->fetch_assoc();
                     <button type="submit" name="delete_account" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Delete Account Permanently
                     </button>
-          </form>
+                </form>
+            </div>
         </div>
-      </div>
     </div>
-
+    
     <script>
         // Show alert function
         function showAlert(message, type = 'info') {
@@ -412,13 +488,23 @@ $student = $student_result->fetch_assoc();
                 return false;
             }
             
-            return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone!');
+            return confirm('Are you absolutely sure you want to delete your account? This will also delete all your courses, assignments, and student data. This action cannot be undone!');
         }
         
         // Export data function
         function exportData() {
             showAlert('Data export feature will be available soon!', 'info');
             // In a real implementation, this would generate and download a data export
+        }
+        
+        // Show notification settings
+        function showNotificationSettings() {
+            showAlert('Notification settings will be available in the next update!', 'info');
+        }
+        
+        // Show grading preferences
+        function showGradingPreferences() {
+            showAlert('Grading preferences will be available in the next update!', 'info');
         }
     </script>
 </body>

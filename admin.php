@@ -54,6 +54,8 @@ exit();
     <a href="#dashboard" class="active" data-page="dashboard">Dashboard</a>
     <a href="#users" data-page="users">Users</a>
     <a href="#courses" data-page="courses">Courses</a>
+    <a href="#course_assignment" data-page="admin_course_assignment">Course Assignment</a>
+    <a href="#user_verification" data-page="admin_user_verification">User Verification</a>
     <a href="#settings" data-page="settings">Settings</a>
   </div>
 

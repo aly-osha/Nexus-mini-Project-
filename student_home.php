@@ -50,7 +50,7 @@
     $result1 = mysqli_query($conn, "SELECT * FROM course");
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
-    $name = $row["name"];
+    $name = $row['name'];
   }
   ?>
   <h1 style="padding-left:20px;"><?php echo   " welcome back ".$name ; ?>

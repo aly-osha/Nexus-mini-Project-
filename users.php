@@ -4,6 +4,7 @@
   <div class="usertabs">
     <button class="tab-btn active" onclick="loadUserPage('student_list.php', this)">Students</button>
     <button class="tab-btn" onclick="loadUserPage('teacher_list.php', this)">Teachers</button>
+    <button class="tab-btn" onclick="loadUserPage('admin_user_manage.php', this)">Pending Verification</button>
   </div>
 
   <!-- Content Area -->

@@ -66,7 +66,7 @@
         </div>
       </div>
       <?php
-      $recent = "select * from student_details  order by register limit 5";
+      $recent = "select * from student_details  order by register desc limit 5";
       $resultrec = $conn->query($recent);
       echo "<table  style='padding-top:10px;font-size: 22px;',bordere=2>";
       while ($rowrec = $resultrec->fetch_assoc()) {
