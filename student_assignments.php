@@ -438,26 +438,28 @@ $assignments_result = $conn->query($assignments_query);
     }
 </style>
 
-<script>
-function toggleSubmissionForm(assignmentId) {
+<script>window.toggleSubmissionForm = function(assignmentId) {
     const form = document.getElementById('form_' + assignmentId);
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } else {
-        form.style.display = 'none';
+    if (!form) {
+        console.error("Form not found for assignment:", assignmentId);
+        return;
     }
-}
+    form.style.display = (form.style.display === 'none' || form.style.display === '') 
+        ? 'block' : 'none';
+    if (form.style.display === 'block') {
+        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+};
 
-function submitAssignmentForm(e, form) {
+window.submitAssignmentForm = function(e, form) {
     e.preventDefault();
     const data = new FormData(form);
-    fetch(form.action, { method: "POST", body: data })
+    fetch(form.action || 'student.php', { method: "POST", body: data })
       .then(res => res.text())
       .then(html => {
         document.getElementById("main-content").innerHTML = html;
       });
-}
+};
 
 function showAlert(message, type = 'info') {
     const alertDiv = document.createElement('div');

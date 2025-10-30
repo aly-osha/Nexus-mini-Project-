@@ -307,7 +307,7 @@ $average_grade = $conn->query("SELECT AVG(grade) as avg_grade FROM submissions W
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
                             <input type="tel" id="phone" name="phone" 
-                                   value="<?php echo htmlspecialchars($student['phone']); ?>">
+                                   value="<?php echo $student['phone']; ?>">
                         </div>
                         <div class="form-group">
                             <label for="dob">Date of Birth</label>

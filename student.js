@@ -25,19 +25,34 @@ document.querySelectorAll('.nav-links a, .nav-links button').forEach(el => {
     loadContent(page, el, true);
   });
 });
-
-
 // === Load Content Dynamically ===
 function loadContent(page, element, push = true) {
   fetch(page)
     .then(response => response.text())
     .then(data => {
-      document.getElementById('main-content').innerHTML = data;
+      const main = document.getElementById('main-content');
+      main.innerHTML = data;
 
+      // 🪄 Re-run any <script> tags from the loaded content
+      main.querySelectorAll('script').forEach(oldScript => {
+        const newScript = document.createElement('script');
+        if (oldScript.src) {
+          // External script file (e.g., <script src="something.js"></script>)
+          newScript.src = oldScript.src;
+        } else {
+          // Inline script (e.g., <script>toggleSubmissionForm()</script>)
+          newScript.textContent = oldScript.textContent;
+        }
+        document.body.appendChild(newScript); // append to execute
+        oldScript.remove(); // cleanup old one to avoid duplicates
+      });
+
+      // === History handling ===
       if (push) {
         window.history.pushState({ page: page }, '', `?page=${page}`);
       }
 
+      // === Active link highlighting ===
       document.querySelectorAll('.nav-links a, .nav-links button').forEach(el => {
         el.classList.remove('active');
       });
@@ -56,6 +71,7 @@ function loadContent(page, element, push = true) {
       console.error(error);
     });
 }
+
 
 // === Handle Browser Back/Forward ===
 window.addEventListener('popstate', event => {

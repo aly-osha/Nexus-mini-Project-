@@ -49,7 +49,7 @@ while ($course = $courses_result->fetch_assoc()) {
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 style="color: #2c3e50;">👥 My Students</h1>
+            <h1 style="color: #2c3e50;">👥 Students</h1>
             <p style="color: #7f8c8d;">Track student progress and manage enrollments.</p>
         </div>
     </div>
@@ -102,7 +102,7 @@ while ($course = $courses_result->fetch_assoc()) {
 
     <!-- Students Table -->
     <div class="table-container">
-        <h3>📊 Student List</h3>
+        <h3>📊 My Student List</h3>
         <?php if ($students_result->num_rows > 0): ?>
             <div class="table-responsive">
                 <table class="table">
@@ -167,10 +167,7 @@ while ($course = $courses_result->fetch_assoc()) {
                                             class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    <button onclick="messageStudent(<?php echo $student['sid']; ?>, '<?php echo htmlspecialchars($student['name']); ?>')" 
-                                            class="btn btn-primary btn-sm">
-                                        <i class="fas fa-message"></i> Message
-                                    </button>
+                                  
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -420,10 +417,6 @@ function viewStudentDetails(studentId) {
     document.getElementById('studentModal').style.display = 'block';
 }
 
-function messageStudent(studentId, studentName) {
-    // In a real implementation, this would open a messaging interface
-    showAlert(`Messaging feature for ${studentName} will be available soon!`, 'info');
-}
 
 function closeStudentModal() {
     document.getElementById('studentModal').style.display = 'none';
