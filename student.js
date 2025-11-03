@@ -85,3 +85,49 @@ window.addEventListener('DOMContentLoaded', () => {
   const page = params.get('page') || 'student_home.php';
   loadContent(page, null, false);
 });
+// Handles form submissions dynamically
+window.submitAssignmentForm = function(e, form) {
+  e.preventDefault();
+  console.log("🟢 Submitting assignment...");
+
+  const data = new FormData(form);
+
+ fetch(form.action || 'student_assignments.php', {
+  method: "POST",
+  body: data
+})
+.then(res => res.json())
+.then(result => {
+  if (result.status === 'success') {
+    alert(result.message);
+  } else {
+    alert("❌ " + result.message);
+  }
+})
+.catch(err => {
+  console.error("❌ Error:", err);
+  alert("Something went wrong while submitting.");
+})
+
+  .catch(err => console.error("❌ Error:", err));
+};
+
+// Reconnects new forms after AJAX reload
+function rebindAssignmentForms() {
+  document.querySelectorAll("form[onsubmit]").forEach(form => {
+    form.onsubmit = e => submitAssignmentForm(e, form);
+  });
+  console.log("♻️ Rebound all forms after reload");
+}
+
+// Helper for toggling assignment forms
+window.toggleSubmissionForm = function(assignmentId) {
+  const form = document.getElementById('form_' + assignmentId);
+  if (!form) return;
+  form.style.display = (form.style.display === 'none' || form.style.display === '')
+    ? 'block'
+    : 'none';
+  if (form.style.display === 'block') {
+    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+};

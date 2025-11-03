@@ -258,14 +258,15 @@ $enrolled_courses->data_seek(0);
     }
     
     .course-image {
-        position: relative;
+        position:relative ;
         height: 200px;
         overflow: hidden;
     }
     
     .course-image img {
-        width: 100%;
-        height: 100%;
+        padding-left:100px ;
+        width: auto;
+        height: 200px;
         object-fit: cover;
         transition: transform 0.3s;
     }

@@ -3,65 +3,63 @@ session_start();
 require_once 'config.php';
 $conn = getConnection();
 
-$sid = $_SESSION['id'];
-
-/* ---------------- Submit Assignment ---------------- */
-if (isset($_POST['submit_assignment'])) {
-    $assignment_id = intval($_POST['assignment_id']);
-    $submission_text = escapeString($conn, $_POST['submission_text']);
-    
-    $file_path = '';
-    $filename = '';
-    
-    // Handle file upload if provided
-    if (isset($_FILES['submission_file']) && $_FILES['submission_file']['error'] == 0) {
-        $uploadResult = uploadFile($_FILES['submission_file']);
-        if ($uploadResult) {
-            $file_path = $uploadResult['filepath'];
-            $filename = $uploadResult['filename'];
-        }
-    }
-    
-    // Check if submission already exists
-    $check_submission = $conn->query("SELECT submission_id FROM submissions WHERE assignment_id = $assignment_id AND student_id = $sid");
-    
-    if ($check_submission->num_rows > 0) {
-        // Update existing submission
-        $update_sql = "UPDATE submissions SET 
-                       submission_text = '$submission_text', 
-                       file_path = '$file_path',
-                       submitted_date = NOW(),
-                       status = 'submitted'
-                       WHERE assignment_id = $assignment_id AND student_id = $sid";
-        
-        if ($conn->query($update_sql)) {
-            echo "<script>showAlert('Assignment updated successfully!', 'success');</script>";
-        } else {
-            echo "<script>showAlert('Error updating assignment: " . $conn->error . "', 'error');</script>";
-        }
-    } else {
-        // Create new submission
-        $insert_sql = "INSERT INTO submissions (assignment_id, student_id, submission_text, file_path, submitted_date, status) 
-                       VALUES ($assignment_id, $sid, '$submission_text', '$file_path', NOW(), 'submitted')";
-        
-        if ($conn->query($insert_sql)) {
-            echo "<script>showAlert('Assignment submitted successfully!', 'success');</script>";
-        } else {
-            echo "<script>showAlert('Error submitting assignment: " . $conn->error . "', 'error');</script>";
-        }
-    }
+$sid = $_SESSION['id'] ?? null;
+if (!$sid) {
+    echo json_encode(["status" => "error", "message" => "Session expired. Please log in again."]);
+    exit;
 }
 
-/* ---------------- Fetch student's assignments ---------------- */
+/* ---------------- Helper Functions ---------------- */
+
+
+/* ---------------- AJAX Submission ---------------- */
+if (isset($_POST['submit_assignment'])) {
+    header('Content-Type: application/json');
+
+    $assignment_id = intval($_POST['assignment_id']);
+    $submission_text = escapeString($conn, $_POST['submission_text'] ?? '');
+    $file_path = '';
+
+    if (isset($_FILES['submission_file']) && $_FILES['submission_file']['error'] == 0) {
+        $uploadResult = uploadFile($_FILES['submission_file'], "uploads/submissions/");
+        if (isset($uploadResult['filepath'])) $file_path = $uploadResult['filepath'];
+        elseif (isset($uploadResult['error'])) {
+            echo json_encode(["status" => "error", "message" => $uploadResult['error']]);
+            exit;
+        }
+    }
+
+    $check = $conn->query("SELECT submission_id FROM submissions WHERE assignment_id=$assignment_id AND student_id=$sid");
+
+    if ($check && $check->num_rows > 0) {
+        $sql = "UPDATE submissions 
+                SET submission_text='$submission_text', file_path='$file_path', submitted_date=NOW(), status='submitted'
+                WHERE assignment_id=$assignment_id AND student_id=$sid";
+        $msg = "Assignment updated successfully!";
+    } else {
+        $sql = "INSERT INTO submissions (assignment_id, student_id, submission_text, file_path, submitted_date, status)
+                VALUES ($assignment_id, $sid, '$submission_text', '$file_path', NOW(), 'submitted')";
+        $msg = "Assignment submitted successfully!";
+    }
+
+    if ($conn->query($sql)) {
+        echo json_encode(["status" => "success", "message" => $msg]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Database error: " . $conn->error]);
+    }
+    exit;
+}
+
+/* ---------------- Fetch Assignments ---------------- */
 $assignments_query = "
-    SELECT a.*, c.course_name, t.name as teacher_name, s.submission_id, s.submission_text, 
-           s.file_path, s.grade, s.feedback, s.status as submission_status, s.submitted_date
+    SELECT a.*, c.course_name, t.name AS teacher_name, s.submission_id, s.submission_text, 
+           s.file_path, s.grade, s.feedback, s.status AS submission_status, s.submitted_date
     FROM assignments a
     JOIN course c ON a.course_id = c.cid
     JOIN teacher_details t ON a.teacher_id = t.tid
     JOIN enrollments e ON a.course_id = e.course_id AND e.student_id = $sid
     LEFT JOIN submissions s ON a.assignment_id = s.assignment_id AND s.student_id = $sid
-    WHERE a.status = 'active'
+    WHERE a.status='active'
     ORDER BY a.due_date ASC
 ";
 
@@ -70,8 +68,10 @@ $assignments_result = $conn->query($assignments_query);
 
 <div class="container">
     <h1>My Assignments</h1>
-    
-    <?php if ($assignments_result->num_rows > 0): ?>
+
+    <div id="response-box" class="response-box" style="display:none;"></div>
+
+    <?php if ($assignments_result && $assignments_result->num_rows > 0): ?>
         <div class="assignments-grid">
             <?php while ($assignment = $assignments_result->fetch_assoc()): ?>
                 <div class="assignment-card">
@@ -79,42 +79,42 @@ $assignments_result = $conn->query($assignments_query);
                         <h3><?php echo htmlspecialchars($assignment['title']); ?></h3>
                         <span class="course-badge"><?php echo htmlspecialchars($assignment['course_name']); ?></span>
                     </div>
-                    
+
                     <div class="assignment-info">
                         <p><strong>Teacher:</strong> <?php echo htmlspecialchars($assignment['teacher_name']); ?></p>
                         <p><strong>Due Date:</strong> 
                             <?php 
-                            $due_date = new DateTime($assignment['due_date']);
-                            $now = new DateTime();
-                            $is_late = $due_date < $now;
-                            echo $due_date->format('M d, Y H:i');
-                            if ($is_late && $assignment['submission_status'] !== 'submitted') {
-                                echo ' <span class="late-badge">LATE</span>';
-                            }
+                                $due_date = new DateTime($assignment['due_date']);
+                                $now = new DateTime();
+                                $is_late = $due_date < $now;
+                                echo $due_date->format('M d, Y H:i');
+                                if ($is_late && $assignment['submission_status'] !== 'submitted') {
+                                    echo ' <span class="late-badge">LATE</span>';
+                                }
                             ?>
                         </p>
                         <p><strong>Max Points:</strong> <?php echo $assignment['max_points']; ?></p>
                     </div>
-                    
+
                     <?php if ($assignment['description']): ?>
                         <div class="assignment-description">
                             <p><?php echo nl2br(htmlspecialchars($assignment['description'])); ?></p>
                         </div>
                     <?php endif; ?>
-                    
+
                     <div class="submission-status">
                         <?php if ($assignment['submission_id']): ?>
                             <div class="submitted-info">
                                 <h4>Your Submission:</h4>
                                 <p><strong>Submitted:</strong> <?php echo date('M d, Y H:i', strtotime($assignment['submitted_date'])); ?></p>
-                                
+
                                 <?php if ($assignment['submission_text']): ?>
                                     <div class="submission-text">
                                         <strong>Text:</strong>
                                         <p><?php echo nl2br(htmlspecialchars($assignment['submission_text'])); ?></p>
                                     </div>
                                 <?php endif; ?>
-                                
+
                                 <?php if ($assignment['file_path']): ?>
                                     <div class="submission-file">
                                         <strong>File:</strong>
@@ -123,7 +123,7 @@ $assignments_result = $conn->query($assignments_query);
                                         </a>
                                     </div>
                                 <?php endif; ?>
-                                
+
                                 <?php if ($assignment['grade'] !== null): ?>
                                     <div class="grade-info">
                                         <strong>Grade:</strong> 
@@ -136,47 +136,37 @@ $assignments_result = $conn->query($assignments_query);
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
-                                
-                                <button class="btn btn-primary" onclick="toggleSubmissionForm(<?php echo $assignment['assignment_id']; ?>)">
-                                    <i class="fas fa-edit"></i> Update Submission
-                                </button>
+
+                                <button class="btn btn-primary" onclick="toggleSubmissionForm(<?php echo $assignment['assignment_id']; ?>)">Update Submission</button>
                             </div>
                         <?php else: ?>
                             <div class="not-submitted">
                                 <p class="status-not-submitted">Not submitted yet</p>
-                                <button class="btn btn-primary" onclick="toggleSubmissionForm(<?php echo $assignment['assignment_id']; ?>)">
-                                    <i class="fas fa-upload"></i> Submit Assignment
-                                </button>
+                                <button class="btn btn-primary" onclick="toggleSubmissionForm(<?php echo $assignment['assignment_id']; ?>)">Submit Assignment</button>
                             </div>
                         <?php endif; ?>
                     </div>
-                    
-                    <!-- Submission Form (Hidden by default) -->
-                    <div class="submission-form" id="form_<?php echo $assignment['assignment_id']; ?>" style="display: none;">
+
+                    <!-- Submission Form -->
+                    <div class="submission-form" id="form_<?php echo $assignment['assignment_id']; ?>" style="display:none;">
                         <h4>Submit Assignment</h4>
                         <form method="post" enctype="multipart/form-data" onsubmit="submitAssignmentForm(event, this)">
                             <input type="hidden" name="assignment_id" value="<?php echo $assignment['assignment_id']; ?>">
-                            
+
                             <div class="form-group">
-                                <label for="submission_text_<?php echo $assignment['assignment_id']; ?>">Submission Text</label>
-                                <textarea name="submission_text" id="submission_text_<?php echo $assignment['assignment_id']; ?>" 
-                                          rows="5" placeholder="Enter your submission text here..."><?php echo htmlspecialchars($assignment['submission_text'] ?? ''); ?></textarea>
+                                <label>Submission Text</label>
+                                <textarea name="submission_text" rows="5" placeholder="Enter your submission text..."><?php echo htmlspecialchars($assignment['submission_text'] ?? ''); ?></textarea>
                             </div>
-                            
+
                             <div class="form-group">
-                                <label for="submission_file_<?php echo $assignment['assignment_id']; ?>">Upload File (Optional)</label>
-                                <input type="file" name="submission_file" id="submission_file_<?php echo $assignment['assignment_id']; ?>" 
-                                       accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
-                                <small>Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG (Max 10MB)</small>
+                                <label>Upload File (Optional)</label>
+                                <input type="file" name="submission_file" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
+                                <small>Supported: PDF, DOC, DOCX, TXT, JPG, PNG (Max 10MB)</small>
                             </div>
-                            
+
                             <div class="form-actions">
-                                <button type="submit" name="submit_assignment" class="btn btn-success">
-                                    <i class="fas fa-check"></i> Submit Assignment
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="toggleSubmissionForm(<?php echo $assignment['assignment_id']; ?>)">
-                                    Cancel
-                                </button>
+                                <button type="submit" name="submit_assignment" class="btn btn-success"><i class="fas fa-check"></i> Submit</button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleSubmissionForm(<?php echo $assignment['assignment_id']; ?>)">Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -185,17 +175,71 @@ $assignments_result = $conn->query($assignments_query);
         </div>
     <?php else: ?>
         <div class="no-assignments">
-            <i class="fas fa-clipboard-list" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <i class="fas fa-clipboard-list" style="font-size:4rem;color:#ccc;margin-bottom:1rem;"></i>
             <h3>No assignments found</h3>
-            <p>You don't have any assignments yet. Enroll in courses to see assignments.</p>
-            <a href="student.php?page=my_learning_new.php" class="btn btn-primary">
-                <i class="fas fa-book"></i> Browse Courses
-            </a>
+            <p>You don't have any assignments yet.</p>
         </div>
     <?php endif; ?>
 </div>
 
+<!-- AJAX Script -->
+<script>
+function toggleSubmissionForm(id) {
+    const form = document.getElementById(`form_${id}`);
+    form.style.display = form.style.display === "none" ? "block" : "none";
+}
+
+function showResponseBox(status, message) {
+    const box = document.getElementById("response-box");
+    box.style.display = "block";
+    box.className = `response-box ${status}`;
+    box.innerHTML = message;
+    setTimeout(() => box.style.display = "none", 5000);
+}
+
+function submitAssignmentForm(e, form) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    formData.append("submit_assignment", "1");
+
+    fetch("student_assignments.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            showResponseBox("success", data.message);
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showResponseBox("error", data.message);
+        }
+    })
+    .catch(() => showResponseBox("error", "Something went wrong!"));
+}
+</script>
+
+<!-- Styling -->
+
 <style>
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+.response-box {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 600;
+}
+.response-box.success { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+.response-box.error { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
     .container {
         max-width: 1200px;
         margin: 2rem auto;
@@ -438,57 +482,7 @@ $assignments_result = $conn->query($assignments_query);
     }
 </style>
 
-<script>window.toggleSubmissionForm = function(assignmentId) {
-    const form = document.getElementById('form_' + assignmentId);
-    if (!form) {
-        console.error("Form not found for assignment:", assignmentId);
-        return;
-    }
-    form.style.display = (form.style.display === 'none' || form.style.display === '') 
-        ? 'block' : 'none';
-    if (form.style.display === 'block') {
-        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-};
 
-window.submitAssignmentForm = function(e, form) {
-    e.preventDefault();
-    const data = new FormData(form);
-    fetch(form.action || 'student.php', { method: "POST", body: data })
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("main-content").innerHTML = html;
-      });
-};
-
-function showAlert(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.textContent = message;
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 6px;
-        color: white;
-        z-index: 1000;
-        font-weight: 500;
-    `;
-    
-    const colors = {
-        success: '#10b981',
-        error: '#ef4444',
-        warning: '#f59e0b',
-        info: '#3b82f6'
-    };
-    
-    alertDiv.style.backgroundColor = colors[type] || colors.info;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
-}
-</script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
