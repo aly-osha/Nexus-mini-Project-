@@ -211,3 +211,36 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+function viewAssignmentDetails(assignmentId) {
+    // This would open a modal or navigate to a detailed view
+    showAlert('Assignment details view will be available in the next update!', 'info');
+}
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.textContent = message;
+    alertDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 6px;
+        color: white;
+        z-index: 1000;
+        font-weight: 500;
+    `;
+    
+    const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6'
+    };
+    
+    alertDiv.style.backgroundColor = colors[type] || colors.info;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}

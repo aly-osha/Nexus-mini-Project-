@@ -21,12 +21,15 @@ if (isset($_POST['create_assignment'])) {
                        VALUES ($course_id, $tid, '$title', '$description', '$due_date', $max_points, NOW(), 'active')";
         
         if ($conn->query($insert_sql)) {
-            echo "<script>showAlert('Assignment created successfully!', 'success');</script>";
+            header("Location: teacher.php?page=teacher_assignment_management.php&status=success");
+            exit;
         } else {
-            echo "<script>showAlert('Error creating assignment: " . $conn->error . "', 'error');</script>";
+            header("Location: teacher.php?page=teacher_assignment_management.php&status=error");
+            exit;
         }
     } else {
-        echo "<script>showAlert('You do not have permission to create assignments for this course.', 'error');</script>";
+        header("Location: teacher.php?page=teacher_assignment_management.php&status=unauthorized");
+        exit;
     }
 }
 
@@ -51,18 +54,19 @@ if (isset($_POST['grade_submission'])) {
             $update_sql = "UPDATE submissions SET grade = $grade, feedback = '$feedback', status = 'graded' WHERE submission_id = $submission_id";
             
             if ($conn->query($update_sql)) {
-                echo "<script>showAlert('Grade submitted successfully!', 'success');</script>";
+                header("Location: teacher.php?page=teacher_assignment_management.php&status=graded");
+                exit;
             } else {
-                echo "<script>showAlert('Error submitting grade: " . $conn->error . "', 'error');</script>";
+                header("Location: teacher.php?page=teacher_assignment_management.php&status=grade_error");
+                exit;
             }
         } else {
-            // Build a safe message using PHP variables outside the JS string to avoid syntax issues
-            $max = intval($submission_data['max_points']);
-            $msg = "Grade cannot exceed maximum points ($max).";
-            echo "<script>showAlert(" . json_encode($msg) . ", 'error');</script>";
+            header("Location: teacher.php?page=teacher_assignment_management.php&status=max_exceeded");
+            exit;
         }
     } else {
-        echo "<script>showAlert('You do not have permission to grade this submission.', 'error');</script>";
+        header("Location: teacher.php?page=teacher_assignment_management.php&status=no_permission");
+        exit;
     }
 }
 
@@ -102,6 +106,7 @@ $submissions_query = "
 ";
 $submissions_result = $conn->query($submissions_query);
 ?>
+
 
 <div class="container">
     <h1>Assignment Management</h1>
@@ -555,39 +560,7 @@ function submitGradeForm(e, form) {
       });
 }
 
-function viewAssignmentDetails(assignmentId) {
-    // This would open a modal or navigate to a detailed view
-    showAlert('Assignment details view will be available in the next update!', 'info');
-}
 
-function showAlert(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.textContent = message;
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 6px;
-        color: white;
-        z-index: 1000;
-        font-weight: 500;
-    `;
-    
-    const colors = {
-        success: '#10b981',
-        error: '#ef4444',
-        warning: '#f59e0b',
-        info: '#3b82f6'
-    };
-    
-    alertDiv.style.backgroundColor = colors[type] || colors.info;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
-}
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
