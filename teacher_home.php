@@ -164,28 +164,7 @@ $recent_submissions = $conn->query("
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h3>🚀 Quick Actions</h3>
-                    <div class="d-flex flex-wrap gap-3 mt-3">
-                        <a href="?page=teacher_materials.php" class="btn btn-primary">
-                            <i class="fas fa-upload"></i> Upload Material
-                        </a>
-                        <a href="?page=teacher_assignments.php" class="btn btn-success">
-                            <i class="fas fa-tasks"></i> Create Assignment
-                        </a>
-                        <a href="?page=teacher_students.php" class="btn btn-info">
-                            <i class="fas fa-users"></i> View Students
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <style>
 .badge {

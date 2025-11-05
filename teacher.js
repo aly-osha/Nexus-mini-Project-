@@ -244,3 +244,47 @@ function showAlert(message, type = 'info') {
         alertDiv.remove();
     }, 3000);
 }
+
+function viewStudentDetails(studentId) {
+    const modalBody = document.getElementById('studentModalBody');
+    modalBody.innerHTML = `<p style="text-align:center; color:#7f8c8d;">Loading details...</p>`;
+    document.getElementById('studentModal').style.display = 'block';
+
+    fetch(`fetch_student_details.php?sid=${studentId}`)
+        .then(response => response.text())
+        .then(html => {
+            modalBody.innerHTML = html;
+        })
+        .catch(err => {
+            modalBody.innerHTML = `<p style="color:red;">Error loading details. Try again.</p>`;
+            console.error(err);
+        });
+}
+
+function closeStudentModal() {
+    document.getElementById('studentModal').style.display = 'none';
+}
+function toggleAssignmentForm() {
+    const formContainer = document.getElementById("assignmentFormContainer");
+    const btn = document.getElementById("toggleFormBtn");
+
+    if (formContainer.style.display === "none" || formContainer.style.display === "") {
+        formContainer.style.display = "block";
+        btn.innerHTML = '<i class="fas fa-minus"></i> Hide Form';
+    } else {
+        formContainer.style.display = "none";
+        btn.innerHTML = '<i class="fas fa-plus"></i> Create New Assignment';
+    }
+}
+function toggleGradeFormBtn() {
+    const formContainer = document.getElementById("GradeFormContainer");
+    const btn = document.getElementById("toggleGradeFormBtn");
+
+    if (formContainer.style.display === "none" || formContainer.style.display === "") {
+        formContainer.style.display = "block";
+        btn.innerHTML = '<i class="fas fa-minus"></i> Cancel';
+    } else {
+        formContainer.style.display = "none";
+        btn.innerHTML = '<i class="fas fa-plus"></i> Grade';
+    }
+}

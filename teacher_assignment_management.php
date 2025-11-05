@@ -111,55 +111,61 @@ $submissions_result = $conn->query($submissions_query);
 <div class="container">
     <h1>Assignment Management</h1>
     
-    <!-- Create Assignment Form -->
+    <!-- Create Assignment Section -->
     <div class="form-section">
-        <h2>Create New Assignment</h2>
-        <form method="post" action="teacher_assignment_management.php" onsubmit="submitAssignmentForm(event, this)">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="course_id">Course</label>
-                    <select name="course_id" id="course_id" required>
-                        <option value="">Select a course...</option>
-                        <?php while ($course = $courses_result->fetch_assoc()): ?>
-                            <option value="<?php echo $course['cid']; ?>">
-                                <?php echo htmlspecialchars($course['course_name']); ?>
-                            </option>
-                        <?php endwhile; ?>
-                    </select>
+      
+        <button type="button" class="btn btn-primary" id="toggleFormBtn" onclick="toggleAssignmentForm()">
+            <i class="fas fa-plus"></i> Create New Assignment
+        </button>
+
+        <div id="assignmentFormContainer" style="display: none; margin-top: 1rem;">
+            <form method="post" action="teacher_assignment_management.php" onsubmit="submitAssignmentForm(event, this)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="course_id">Course</label>
+                        <select name="course_id" id="course_id" required>
+                            <option value="">Select a course...</option>
+                            <?php while ($course = $courses_result->fetch_assoc()): ?>
+                                <option value="<?php echo $course['cid']; ?>">
+                                    <?php echo htmlspecialchars($course['course_name']); ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="title">Assignment Title</label>
+                        <input type="text" name="title" id="title" required placeholder="Enter assignment title">
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="title">Assignment Title</label>
-                    <input type="text" name="title" id="title" required placeholder="Enter assignment title">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea name="description" id="description" rows="4" placeholder="Describe the assignment requirements..."></textarea>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="due_date">Due Date</label>
-                    <input type="datetime-local" name="due_date" id="due_date" required>
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" rows="4" placeholder="Describe the assignment requirements..."></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="max_points">Maximum Points</label>
-                    <input type="number" name="max_points" id="max_points" required min="1" max="1000" value="100">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="due_date">Due Date</label>
+                        <input type="datetime-local" name="due_date" id="due_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="max_points">Maximum Points</label>
+                        <input type="number" name="max_points" id="max_points" required min="1" max="1000" value="100">
+                    </div>
                 </div>
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" name="create_assignment" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Create Assignment
-                </button>
-            </div>
-        </form>
+                
+                <div class="form-actions">
+                    <button type="submit" name="create_assignment" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
     
-    <!-- My Assignments -->
+    <!-- My Assignments Section -->
     <div class="assignments-section">
         <h2>My Assignments</h2>
         <?php if ($assignments_result->num_rows > 0): ?>
@@ -249,8 +255,10 @@ $submissions_result = $conn->query($submissions_query);
                                 </a>
                             </div>
                         <?php endif; ?>
-                        
-                        <div class="grading-form">
+                        <button type="button" class="btn btn-primary" id="toggleGradeFormBtn" onclick="toggleGradeFormBtn()">
+            <i class="fas fa-plus"></i> Grade
+        </button>
+                        <div class="grading-form" id="GradeFormContainer" style="display: none; margin-top: 1rem;">
                             <form method="post" action="teacher_assignment_management.php" onsubmit="submitGradeForm(event, this)">
                                 <input type="hidden" name="submission_id" value="<?php echo $submission['submission_id']; ?>">
                                 
@@ -288,7 +296,18 @@ $submissions_result = $conn->query($submissions_query);
     </div>
 </div>
 
+
 <style>
+
+#assignmentFormContainer {
+    animation: fadeSlide 0.3s ease;
+}
+
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
     .container {
         max-width: 1400px;
         margin: 2rem auto;
@@ -537,9 +556,12 @@ $submissions_result = $conn->query($submissions_query);
             gap: 1rem;
         }
     }
-</style>
 
+
+</style>
 <script>
+
+
 function submitAssignmentForm(e, form) {
     e.preventDefault();
     const data = new FormData(form);
@@ -559,8 +581,6 @@ function submitGradeForm(e, form) {
         document.getElementById("main-content").innerHTML = html;
       });
 }
-
-
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

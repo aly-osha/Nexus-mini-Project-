@@ -395,34 +395,8 @@ function filterByCourse(courseId) {
     window.location.href = `?page=teacher_students.php&course_id=${courseId}`;
 }
 
-function viewStudentDetails(studentId) {
-    // In a real implementation, this would fetch and display detailed student information
-    document.getElementById('studentModalBody').innerHTML = `
-        <div class="text-center">
-            <i class="fas fa-user" style="font-size: 3rem; color: #3498db; margin-bottom: 1rem;"></i>
-            <h4>Student Details</h4>
-            <p>Detailed student information would be displayed here, including:</p>
-            <ul style="text-align: left; max-width: 300px; margin: 0 auto;">
-                <li>Complete profile information</li>
-                <li>Course enrollment history</li>
-                <li>Assignment submissions</li>
-                <li>Grade history</li>
-                <li>Progress analytics</li>
-            </ul>
-            <p style="margin-top: 1rem; color: #7f8c8d;">
-                <em>This feature will be implemented in the next update.</em>
-            </p>
-        </div>
-    `;
-    document.getElementById('studentModal').style.display = 'block';
-}
 
 
-function closeStudentModal() {
-    document.getElementById('studentModal').style.display = 'none';
-}
-
-// Close modal when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('studentModal');
     if (event.target == modal) {
