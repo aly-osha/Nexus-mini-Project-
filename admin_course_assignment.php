@@ -86,7 +86,7 @@ $teachers_result = $conn->query($teachers_query);
         <h2>Current Course Assignments</h2>
         <div class="assignments-grid">
             <?php 
-            // Reset teachers result pointer
+           
             $teachers_result->data_seek(0);
             while ($teacher = $teachers_result->fetch_assoc()): 
             ?>

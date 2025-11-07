@@ -137,7 +137,7 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
     <?php if ($total_unverified > 0): ?>
         <!-- Bulk Actions -->
         <div class="bulk-actions">
-            <form method="post" action="admin_user_verification.php" onsubmit="return confirmBulkAction('verify all unverified users')">
+            <form method="post" action="admin.php#admin_user_verification.php" onsubmit="return confirmBulkAction('verify all unverified users')">
                 <button type="submit" name="verify_all" class="btn btn-success btn-large">
                     <i class="fas fa-check-double"></i> Verify All Users
                 </button>

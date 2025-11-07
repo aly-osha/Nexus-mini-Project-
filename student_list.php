@@ -8,7 +8,8 @@ if (!$conn) {
 if (isset($_GET['delete'])) {
     $delete_sid = intval($_GET['delete']);
     $deletequery = "DELETE FROM student_user WHERE sid='$delete_sid'";
-    if ($conn->query($deletequery) === TRUE) {
+        $deletequery1 = "DELETE FROM student_details WHERE sid='$delete_sid'";
+    if ((($conn->query($deletequery))&&($conn->query($deletequery1))) === TRUE) {
         header("Location: student_list.php?filter=$filter");
         exit;
     } else {

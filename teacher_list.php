@@ -8,7 +8,9 @@ if (!$conn) {
 if (isset($_GET['delete'])) {
     $delete_tid = intval($_GET['delete']);
     $deletequery = "DELETE FROM teacher_user WHERE tid='$delete_tid'";
-    if ($conn->query($deletequery) === TRUE) {
+    $deletequery1 = "DELETE FROM teacher_details WHERE tid='$delete_tid'";
+    
+    if (($conn->query($deletequery)&&($conn->query($deletequery1))) === TRUE) {
         header("Location: teacher_list.php?filter=$filter");
         exit;
     } else {
@@ -38,7 +40,7 @@ if (isset($_POST['update_user'])) {
     $add = mysqli_real_escape_string($conn, $_POST['add']);
     $dob = mysqli_real_escape_string($conn, $_POST['dob']);
     $filter = isset($_POST['filter']) ? $_POST['filter'] : ($_GET['filter'] ?? 'all');
-    $editquery = "UPDATE teacher_user SET user_name='$user', password='$pass' WHERE tid='$tid'";
+    $editquery = "UPDATE teacher_user SET user_name='$user', password='$pass',verified='$verify' WHERE tid='$tid'";
     $editquery2="UPDATE teacher_details SET name='$name', e_mail='$e_mail', dob='$dob',address='$add' WHERE tid='$tid'";
       if (($conn->query($editquery) === TRUE)&&($conn->query($editquery2) === TRUE)) {
         header('Location: admin.php#users');
