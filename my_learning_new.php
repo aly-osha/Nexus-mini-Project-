@@ -34,17 +34,6 @@ $enrolled_courses = $conn->query("
     ORDER BY e.enrollment_date DESC
 ");
 
-// Get available courses (not enrolled) with teacher info
-$available_courses = $conn->query("
-    SELECT c.*, td.name as teacher_name, td.specialization
-    FROM course c 
-    LEFT JOIN teacher_details td ON c.cid = td.cid
-    WHERE c.status = 'active' 
-    AND c.cid NOT IN (
-        SELECT course_id FROM enrollments WHERE student_id = $sid
-    )
-    ORDER BY c.created_date DESC
-");
 
 $view = isset($_GET['view']) ? $_GET['view'] : 'enrolled';
 ?>
@@ -57,18 +46,7 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'enrolled';
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs-container mb-4">
-        <a href="?page=my_learning_new.php&view=enrolled" 
-           class="nav-tab <?php echo $view == 'enrolled' ? 'active' : ''; ?>">
-            📖 My Courses
-        </a>
-        <a href="?page=my_learning_new.php&view=available" 
-           class="nav-tab <?php echo $view == 'available' ? 'active' : ''; ?>">
-            🔍 Browse Courses
-        </a>
-    </div>
-
+  
     <?php if ($view == 'enrolled'): ?>
         <!-- Enrolled Courses -->
         <div class="course-grid">
@@ -115,7 +93,7 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'enrolled';
                         </div>
                         
                         <div class="course-actions">
-                            <a href="#" class="btn btn-primary btn-sm">
+                            <a href="course_view.php?course_id=<?php echo $course['cid']; ?>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-play"></i> Continue Learning
                             </a>
                         </div>
