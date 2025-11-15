@@ -66,7 +66,16 @@
         </div>
       </div>
       <?php
-      $recent = "select * from student_details  order by register desc limit 5";
+      $recent = "SELECT sd.*, 
+                 (SELECT c.course_name 
+                  FROM enrollments e 
+                  JOIN course c ON e.course_id = c.cid 
+                  WHERE e.student_id = sd.sid 
+                  ORDER BY e.enrollment_date DESC 
+                  LIMIT 1) as course_name
+                 FROM student_details sd 
+                 ORDER BY sd.register DESC 
+                 LIMIT 5";
       $resultrec = $conn->query($recent);
       echo "<table  style='padding-top:10px;font-size: 22px;',bordere=2>";
       while ($rowrec = $resultrec->fetch_assoc()) {
@@ -75,7 +84,8 @@ echo "<td style='padding-top: 5px; text-align: center;'>
         <img src='" . $rowrec['profilepic'] . "' style='border-radius:100px; width:50px; height:50px;'>
       </td>";
     echo "<td style='width:160px;'>" . htmlspecialchars($rowrec['name']) . "</td>";
-    echo "<td style='width:200px;padding-left:4px'>blahblahblah</td>";
+    $courseName = !empty($rowrec['course_name']) ? htmlspecialchars($rowrec['course_name']) : 'Not enrolled';
+    echo "<td style='width:200px;padding-left:4px'>" . $courseName . "</td>";
     echo "<td>".$rowrec['register'];
     echo "</td></tr>";
 }
