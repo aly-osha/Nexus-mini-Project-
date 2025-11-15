@@ -10,8 +10,8 @@ if (isset($_POST['verify_user'])) {
 
     if ($user_type === 'student') {
         $update_sql = "UPDATE student_user SET verified = 'yes' WHERE sid = $user_id";
-        echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
-exit();
+    
+
 
     } else if ($user_type === 'teacher') {
         $update_sql = "UPDATE teacher_user SET verified = 'yes' WHERE tid = $user_id";
@@ -43,13 +43,10 @@ if (isset($_POST['verify_selected'])) {
 
             if ($user_type === 'student') {
                 $update_sql = "UPDATE student_user SET verified = 'yes' WHERE sid = $user_id";
-echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
-exit();
 
             } else if ($user_type === 'teacher') {
                 $update_sql = "UPDATE teacher_user SET verified = 'yes' WHERE tid = $user_id";
-echo "<script>window.location.href=admin.php#admin_user_verification'';</script>";
-exit();
+
 
             }
 
@@ -62,6 +59,8 @@ exit();
 
         if ($success_count > 0) {
             echo "<script>showAlert('$success_count user(s) verified successfully!', 'success');</script>";
+            echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
+         exit();
         }
         if ($error_count > 0) {
             echo "<script>showAlert('Error verifying $error_count user(s).', 'error');</script>";
@@ -152,7 +151,7 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
     <?php if ($total_unverified > 0): ?>
         <!-- Bulk Actions -->
         <div class="bulk-actions">
-            <form method="post" action="admin.php#admin_user_verification.php"
+            <form method="post" action="admin_user_verification.php"
                 onsubmit="return confirmBulkAction('verify all unverified users')">
                 <button type="submit" name="verify_all" class="btn btn-success btn-large">
                     <i class="fas fa-check-double"></i> Verify All Users
@@ -212,7 +211,7 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
                                             Select
                                         </label>
 
-                                        <form method="post" action="admin_user_verification.php" style="display: inline;">
+                                        <form method="post" action="admin.php#admin_user_verification.php" style="display: inline;">
                                             <input type="hidden" name="user_type" value="student">
                                             <input type="hidden" name="user_id" value="<?php echo $student['sid']; ?>">
                                             <button type="submit" name="verify_user" class="btn btn-primary btn-sm">
@@ -633,7 +632,7 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
         return confirm('Are you sure you want to ' + action + '? This action cannot be undone.');
     }
 
-    function showAlert(message, type = 'info') {
+      function showAlert(message, type = 'info') {
         const alertDiv = document.createElement('div');
         alertDiv.textContent = message;
         alertDiv.style.cssText = `
@@ -660,7 +659,7 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
         setTimeout(() => {
             alertDiv.remove();
         }, 3000);
-    }
+    } 
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
