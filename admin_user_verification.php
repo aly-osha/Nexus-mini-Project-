@@ -10,7 +10,7 @@ if (isset($_POST['verify_user'])) {
 
     if ($user_type === 'student') {
         $update_sql = "UPDATE student_user SET verified = 'yes' WHERE sid = $user_id";
-    
+
 
 
     } else if ($user_type === 'teacher') {
@@ -19,8 +19,8 @@ if (isset($_POST['verify_user'])) {
 
     if ($conn->query($update_sql)) {
         echo "<script>showAlert('User verified successfully!', 'success');</script>";
-    echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
-exit();
+        echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
+        exit();
 
     } else {
         echo "<script>showAlert('Error verifying user: " . $conn->error . "', 'error');</script>";
@@ -60,7 +60,7 @@ if (isset($_POST['verify_selected'])) {
         if ($success_count > 0) {
             echo "<script>showAlert('$success_count user(s) verified successfully!', 'success');</script>";
             echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
-         exit();
+            exit();
         }
         if ($error_count > 0) {
             echo "<script>showAlert('Error verifying $error_count user(s).', 'error');</script>";
@@ -80,8 +80,8 @@ if (isset($_POST['verify_all'])) {
 
     if ($student_result && $teacher_result) {
         echo "<script>showAlert('All unverified users have been verified successfully!', 'success');</script>";
-echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
-exit();
+        echo "<script>window.location.href='admin.php#admin_user_verification';</script>";
+        exit();
 
     } else {
         echo "<script>showAlert('Some errors occurred while verifying users.', 'error');</script>";
@@ -196,7 +196,19 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
                                             <h4><?php echo htmlspecialchars($student['name']); ?></h4>
                                             <p><strong>Username:</strong> <?php echo htmlspecialchars($student['user_name']); ?></p>
                                             <p><strong>Email:</strong> <?php echo htmlspecialchars($student['e_mail']); ?></p>
-                                            <p><strong>Registered:</strong> <?php echo date('M d, Y', $student['register']); ?></p>
+                                            <p><strong>Registered:</strong>
+                                                <?php
+                                                if (!empty($student['register'])) {
+                                                    $timestamp = is_numeric($student['register'])
+                                                        ? intval($student['register'])
+                                                        : strtotime($student['register']);
+                                                    echo date('M d, Y', $timestamp);
+                                                } else {
+                                                    echo 'Not available';
+                                                }
+                                                ?>
+                                            </p>
+
                                             <?php if ($student['phone']): ?>
                                                 <p><strong>Phone:</strong> <?php echo htmlspecialchars($student['phone']); ?></p>
                                             <?php endif; ?>
@@ -632,7 +644,7 @@ $total_unverified = $unverified_students->num_rows + $unverified_teachers->num_r
         return confirm('Are you sure you want to ' + action + '? This action cannot be undone.');
     }
 
-      function showAlert(message, type = 'info') {
+    function showAlert(message, type = 'info') {
         const alertDiv = document.createElement('div');
         alertDiv.textContent = message;
         alertDiv.style.cssText = `

@@ -12,7 +12,7 @@
   <?php
   session_start();
   if (!isset($_SESSION['id'])) {
-      header('Location: login.html');
+      header('Location: login.php');
       exit;
   }
   $sid = (int) $_SESSION['id'];
@@ -34,7 +34,7 @@
 
   if(isset($_POST['logout'])){
     session_destroy();
-    header('location:login.html');
+    header('location:login.php');
   }
   ?>
 

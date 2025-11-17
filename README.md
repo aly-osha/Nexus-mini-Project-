@@ -113,7 +113,7 @@ After running the sample data script, you can test with these accounts:
 MiniProject/
 ├── config.php                          # Database configuration
 ├── populate_sample_data.php            # Sample data population script
-├── login.html                          # Login page
+├── login.php                           # Login page
 ├── user_validation.php                 # Authentication logic
 ├── new_user.php                        # User registration
 ├── user_name.php                       # Username validation

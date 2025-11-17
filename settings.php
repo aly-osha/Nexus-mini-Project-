@@ -95,7 +95,7 @@ if (isset($_POST["changeuname"])) {
 if (isset($_POST["logoutbutt"])) {
   session_unset();    
 session_destroy();   
-header("location:login.html");
+header("location:login.php");
 exit();
 }
 

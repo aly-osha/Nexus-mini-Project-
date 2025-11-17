@@ -20,7 +20,7 @@ if ($conn->connect_error) {
 }
 //quries 
 $teacher = "insert into teacher_details(name,e_mail,cid,dob,address,phone,register) values('$name','$email',0,'$dob','$addres','$phone',CURRENT_DATE)";
-$student = "insert into student_details(name,e_mail,cid,dob,address,register,phone) values('$name','$email',0,'$dob','$addres',CURRENT_DATE,$phone)";
+$student = "insert into student_details(name,e_mail,dob,address,register,phone) values('$name','$email','$dob','$addres',CURRENT_DATE,$phone)";
 
 if ($role == "teacher") {
     if ($conn->query($teacher)) {
@@ -32,7 +32,7 @@ if ($role == "teacher") {
             $tid = $row['tid'];
             $teachu = "insert into teacher_user values('$uname','$pword','$tid','NUL',CURRENT_DATE)";
             if ($conn->query($teachu)) {
-                    header("location:login.html");
+                    header("location:login.php");
             }
             else{
                 echo "inserintg into user table error";
@@ -54,7 +54,7 @@ if ($role == "teacher") {
             $sid = $row['sid'];
             $studentu = "insert into student_user values('$uname','$pword','$sid','NULL',CURRENT_DATE)";
             if ($conn->query($studentu)) {
-                    header("location:login.html");
+                    header("location:login.php");
             }
         }
     } else {

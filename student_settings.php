@@ -63,7 +63,7 @@ if (isset($_POST['delete_account'])) {
         $conn->query("DELETE FROM student_details WHERE sid = $sid");
         
         session_destroy();
-        echo "<script>alert('Account deleted successfully!'); window.location.href='login.html';</script>";
+        echo "<script>alert('Account deleted successfully!'); window.location.href='login.php';</script>";
     exit();
   } else {
         echo "<script>showAlert('Please type DELETE to confirm account deletion.', 'error');</script>";
